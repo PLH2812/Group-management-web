@@ -34,7 +34,12 @@ router.post('/users/login', async(req, res) => {
 
 router.get('/users/me', auth, async(req, res) => {
     // View logged in user profile
-    res.send(req.user)
+    const data = {
+      _id: req.user._id,
+      email: req.user.email,
+      name: req.user.name
+    };
+    res.send(data)
 })
 
 router.patch('/users/me', auth, async(req, res) => {
