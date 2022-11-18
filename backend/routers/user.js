@@ -8,6 +8,7 @@ router.post("/users/register", async (req, res) => {
   // Create a new user
   try {
     const user = new User(req.body);
+    user.role = "USER";
     await user.save();
     const token = await user.generateAuthToken();
     res.status(201).send({ user, token });
@@ -33,7 +34,25 @@ router.post('/users/login', async(req, res) => {
 
 router.get('/users/me', auth, async(req, res) => {
     // View logged in user profile
-    res.send(req.user)
+    const data = {
+      _id: req.user._id,
+      email: req.user.email,
+      name: req.user.name
+    };
+    res.send(data)
+})
+
+router.patch('/users/me', auth, async(req, res) => {
+    // Update user profile
+    try {
+      const data = req.body;
+      req.user.email = data.email;
+      req.user.name = data.name;
+      await req.user.save();
+      res.send();
+    } catch (error) {
+      res.status(500).send(error);
+    }
 })
 
 router.post("/users/me/logout", auth, async (req, res) => {

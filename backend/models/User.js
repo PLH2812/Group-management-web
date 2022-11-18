@@ -9,6 +9,10 @@ const userSchema = mongoose.Schema({
     required: true,
     trim: true
   },
+  role:{ //USER or ADMIN
+    type: String,
+    required: true
+  },
   email: {
     type: String,
     required: true,
@@ -36,7 +40,7 @@ const userSchema = mongoose.Schema({
 });
 
 userSchema.pre("save", async function(next) {
-  // Hash the password before saving the user model
+  // Hash the password before saving
   const user = this;
   if (user.isModified("password")) {
     user.password = await bcrypt.hash(user.password, 8);
@@ -45,7 +49,6 @@ userSchema.pre("save", async function(next) {
 });
 
 userSchema.methods.generateAuthToken = async function() {
-  // Generate an auth token for the user
   const user = this;
   const token = jwt.sign({ _id: user._id }, process.env.JWT_KEY);
   user.tokens = user.tokens.concat({ token });
@@ -54,7 +57,7 @@ userSchema.methods.generateAuthToken = async function() {
 };
 
 userSchema.statics.findByCredentials = async (email, password) => {
-  // Search for a user by email and password.
+  // Search for a user by email and password
   const user = await User.findOne({ email });
   if (!user) {
     throw new Error({ error: "Thông tin đăng nhập không hợp lệ" });
