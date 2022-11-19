@@ -13,6 +13,10 @@ const userSchema = mongoose.Schema({
     type: String,
     required: true
   },
+  status:{ //ACTIVE or DELETED
+    type: String,
+    required: true
+  },
   email: {
     type: String,
     required: true,

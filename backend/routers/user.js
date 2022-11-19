@@ -1,6 +1,7 @@
 const express = require("express");
 const User = require("../models/User");
 const auth = require("../middleware/auth");
+const checkStatus = require("../middleware/checkUserStatus")
 
 const router = express.Router();
 
@@ -8,25 +9,30 @@ router.post("/users/register", async (req, res) => {
   // Create a new user
   try {
     const user = new User(req.body);
-    user.role = "USER";
-    await user.save();
-    const token = await user.generateAuthToken();
-    res.status(201).send({ user, token });
+    const unavailable = await User.findOne({email: user.email});
+    if (!unavailable){
+      user.role = "USER";
+      user.status = "ACTIVE";
+      await user.save();
+      const token = await user.generateAuthToken();
+      res.status(201).send({ token });
+    } else {
+      res.status(400).send({error: 'Người dùng đã tồn tại!'});
+    }
   } catch (error) {
     res.status(400).send(error);
   }
 });
 
-router.post('/users/login', async(req, res) => {
+router.post('/users/login', checkStatus, async(req, res) => {
     //Login a registered user
     try {
-        const { email, password } = req.body
-        const user = await User.findByCredentials(email, password)
+        const user = req.user;
         if (!user) {
             return res.status(401).send({error: 'Đăng nhập thất bại!'})
         }
         const token = await user.generateAuthToken()
-        res.send({ user, token })
+        res.send({ token })
     } catch (error) {
         res.status(400).send(error)
     }
