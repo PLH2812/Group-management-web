@@ -7,7 +7,9 @@ const router = express.Router();
 
 const adminRole = process.env.ROLE_ADMIN;
 
-router.post("/admin/createUser", requireRole(adminRole), async (req, res) => {
+/*--------------------------------------------------------------------------User Management Start--------------------------------------------------------------------------*/
+
+router.post("api/admin/createUser", requireRole(adminRole), async (req, res) => {
     // Create a new user
     try {
         const user = new User(req.body);
@@ -18,7 +20,7 @@ router.post("/admin/createUser", requireRole(adminRole), async (req, res) => {
     }
 });
 
-router.post("/admin/updateUser/:_id", requireRole(adminRole), async (req, res) => {    
+router.post("api/admin/updateUser/:_id", requireRole(adminRole), async (req, res) => {    
     // Update an existing user
     try {
         const data = await User.findByIdAndUpdate(req.params['_id'], {
@@ -33,7 +35,7 @@ router.post("/admin/updateUser/:_id", requireRole(adminRole), async (req, res) =
     }
 })
 
-router.post("/admin/deleteUser/:_id", requireRole(adminRole), async (req, res) => {
+router.post("api/admin/deleteUser/:_id", requireRole(adminRole), async (req, res) => {
     try {
         const data = await User.findByIdAndUpdate(req.params['_id'], {
             status: "DELETED" //Change status to "DELETED"
@@ -46,7 +48,7 @@ router.post("/admin/deleteUser/:_id", requireRole(adminRole), async (req, res) =
     }
 })
 
-router.get("/admin/getUser/:_id", requireRole(adminRole), async (req, res) => {
+router.get("api/admin/getUser/:_id", requireRole(adminRole), async (req, res) => {
     try {
         const data = await User.findOne({_id: req.params['_id']});
         if(!data){
@@ -58,7 +60,7 @@ router.get("/admin/getUser/:_id", requireRole(adminRole), async (req, res) => {
     }
 })
 
-router.get("/admin/getAllUsers", requireRole(adminRole), async (req, res) => {
+router.get("api/admin/getAllUsers", requireRole(adminRole), async (req, res) => {
     try {
         const data = await User.find();
         res.status(201).send(data);
@@ -66,5 +68,7 @@ router.get("/admin/getAllUsers", requireRole(adminRole), async (req, res) => {
            res.status(500).send(error);
     }
 })
+
+/*--------------------------------------------------------------------------User Management Ends--------------------------------------------------------------------------*/
 
 module.exports = router;
