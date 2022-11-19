@@ -1,6 +1,6 @@
 const express = require("express");
 const User = require("../models/User");
-const auth = require("../middleware/auth");
+const auth = require("../middleware/auth").auth;
 const checkStatus = require("../middleware/checkUserStatus")
 
 const router = express.Router();
@@ -11,8 +11,8 @@ router.post("/users/register", async (req, res) => {
     const user = new User(req.body);
     const unavailable = await User.findOne({email: user.email});
     if (!unavailable){
-      user.role = "USER";
-      user.status = "ACTIVE";
+      user.role = process.env.ROLE_USER;
+      user.status = process.env.USER_STATUS_ACTIVE;
       await user.save();
       const token = await user.generateAuthToken();
       res.status(201).send({ token });
