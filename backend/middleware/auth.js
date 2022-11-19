@@ -19,6 +19,21 @@ const auth = async (req, res, next) => {
   } catch (error) {
     res.status(500).send({ error:"Token không hợp lệ"});
   }
-  
 };
-module.exports = auth;
+
+var requireRole = function(role) {
+  return (req, res, next) =>{
+    auth(req, res, function(){
+      if(req.user.role == role){
+        next();
+      } else {
+        return res.status(401).send({ error: "Không được phép truy cập" });
+      }
+    });
+  }
+}
+
+module.exports = {
+  auth: auth,
+  requireRole: requireRole
+};
