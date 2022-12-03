@@ -1,6 +1,6 @@
 const express = require("express");
+const Group = require("../models/Group");
 const User = require("../models/User");
-// const auth = require("../middleware/auth").auth;
 const requireRole = require("../middleware/auth").requireRole;
 
 const router = express.Router();
@@ -42,7 +42,7 @@ router.post("/api/admin/deleteUser/:_id", requireRole(adminRole), async (req, re
         })
         data.tokens.splice(0, data.tokens.length) //Logout from all devices
         await data.save();
-        res.send({message:"Xoá thành công!"});
+        res.status(200).send({message:"Xoá thành công!"});
     } catch (error) {
         res.status(500).send(error);
     }
@@ -54,7 +54,7 @@ router.get("/api/admin/getUser/:_id", requireRole(adminRole), async (req, res) =
         if(!data){
             res.status(404).send({ error: "id không tồn tại!" });
         }
-        res.send(data);
+        res.status(200).send(data);
     } catch (error) {
         res.status(500).send(error);
     }
@@ -71,4 +71,82 @@ router.get("/api/admin/getAllUsers", requireRole(adminRole), async (req, res) =>
 
 /*--------------------------------------------------------------------------User Management Ends--------------------------------------------------------------------------*/
 
+
+/*--------------------------------------------------------------------------Group Management Starts--------------------------------------------------------------------------*/
+router.get("/api/admin/getAllGroups", requireRole(adminRole), async (req, res) =>{
+    try {
+        const data = await Group.find();
+        res.status(200).send(data);
+    } catch (error) {
+           res.status(500).send(error);
+    }
+})
+
+router.get("api/admin/getGroup/:_id", requireRole(adminRole), async (req, res) => {
+    try {
+        const data = await Group.findOne({_id: req.params['_id']});
+        if(!data){
+            res.status(404).send({ error: "id không tồn tại!" });
+        }
+        res.status(200).send(data);
+    } catch (error) {
+        res.status(500).send(error);
+    }
+})
+
+router.post("/api/admin/createGroup", requireRole(adminRole), async (req, res) => {
+    try {
+        const group = new Group(req.body);
+        group.save();
+        res.status(200).send({ message: "Tạo nhóm thành công!"});
+    } catch (error) {
+        res.status(500).send(error);
+    }
+})
+
+router.post("/api/admin/updateGroup/:_id", requireRole(adminRole), async (req, res) => {
+    try {
+        const data = await Group.findByIdAndUpdate(req.params['_id'], {
+            name: req.body.name,
+            description: req.body.description,
+            owner: req.body.owner,
+            members: req.body.members,
+            tasks: req.body.tasks
+        })
+        await data.save();
+        res.status(200).send({message: "Sửa thành công!"});
+    } catch (error) {
+        res.status(500).send(error);
+    }
+})
+
+router.delete("/api/admin/deleteGroup/:_id", requireRole(adminRole), async (req, res) => {
+    try {
+        const group = [];
+        group = Group.findByIdAndDelete(req.params['_id']);
+        res.status(200).send({ message: "Xoá nhóm thành công!"});
+    } catch (error) {
+        res.status(500).send(error);
+    }
+})
+
+
+ router.post("/api/admin/removeUser/userId/fromGroup/groupId", requireRole(adminRole), async (req, res) => {
+    try {
+        const group = await Group.findById(req.params["groupId"]);
+        if (!group) {
+            return res.status(404).send({error: "Nhóm không tồn tại!"});
+        }
+        const member = await User.findOne({_id: req.params['userId']});
+        if (!member) {
+            res.status(404).send({error: "Không tìm thấy người dùng này!"});
+        } else {
+            group.members = group.members.filter(function(mem) { return mem.userId != member._id; }); 
+            group.save();
+            res.status(200).send({message: "Đã xoá người dùng khỏi nhóm!"});
+        }
+    } catch (error) {
+        res.status(500).send(error);
+    }
+ })
 module.exports = router;

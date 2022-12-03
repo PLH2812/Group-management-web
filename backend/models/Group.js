@@ -22,10 +22,6 @@ const groupSchema = mongoose.Schema({
           }
         }
     ],
-    status:{
-        type: String,
-        required: true
-    },
     createdDate: {
         type: Date,
         default: Date.now()
@@ -71,6 +67,7 @@ groupSchema.statics.setGroupOwner = async function(userId, userName){
 }
 
 //TODO: delete task before delete group
+
 const Group = mongoose.model("Group", groupSchema);
 
 module.exports = Group;

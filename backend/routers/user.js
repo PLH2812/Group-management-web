@@ -157,9 +157,8 @@ router.patch('/api/users/me/removeUser/:userId/fromGroup/:groupId', auth, async 
       } else {
         group.members = group.members.filter(function(mem) { return mem.userId != member._id; }); 
         group.save();
-        res.status(200).send({message: "Thêm thành công!"});
+        res.status(200).send({message: "Đã xoá người dùng khỏi nhóm!"});
       }
-      res.status(200).send({ message: "Xoá nhóm thành công!"});
     }
   } catch (error) {
     res.status(500).send(error);
