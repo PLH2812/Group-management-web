@@ -130,8 +130,7 @@ router.delete("/api/admin/deleteGroup/:_id", requireRole(adminRole), async (req,
     }
 })
 
-
- router.post("/api/admin/removeUser/userId/fromGroup/groupId", requireRole(adminRole), async (req, res) => {
+ router.post("/api/admin/removeUser/:userId/fromGroup/:groupId", requireRole(adminRole), async (req, res) => {
     try {
         const group = await Group.findById(req.params["groupId"]);
         if (!group) {
@@ -149,4 +148,6 @@ router.delete("/api/admin/deleteGroup/:_id", requireRole(adminRole), async (req,
         res.status(500).send(error);
     }
  })
+
+
 module.exports = router;
