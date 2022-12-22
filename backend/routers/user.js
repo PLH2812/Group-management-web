@@ -39,6 +39,20 @@ router.post('/api/users/login', checkStatus, async(req, res) => {
     }
 });
 
+router.post('api/users/forgotPassword', async(req,res) => {
+  try {
+        const user = await User.findOne({email: user.email});
+        if (!user) {
+          return res.status(404).send({error: 'Người dùng không tồn tại'});
+        }
+        else {
+          //generate random code + gui email
+        }
+    } catch (error) {
+        res.status(400).send(error);
+    }
+})
+
 router.get('/api/users/me', auth, async(req, res) => {
     // View logged in user profile
     const data = {
@@ -98,26 +112,35 @@ router.get('/api/users/me/groups', auth, async(req, res) => {
 
 router.post('/api/users/me/createGroup', auth, async (req, res) => {
   try {
+    const ownerInfo = ({userId: req.user._id, name: req.user.name});
+    req.body.owner = ownerInfo;
     const group = new Group(req.body);
-    group.setGroupOwner(req.user._id, req.user.name);
+    group.save();
     res.status(200).send({ message: "Tạo nhóm thành công!"});
   } catch (error) {
-    res.status(500).send(error);
+    res.status(500).send({error: error.message});
   }
 })
 
 router.delete('/api/users/me/deleteGroup/:_id', auth, async (req, res) => {
   try {
-    const myGroups = await Group.getMyGroups(req.user._id);
-    const group = myGroups.find(g => g.id === req.params['_id']);
+    let myGroups = await Group.getMyGroups(req.user._id);
+    let group = myGroups.find(g => g.id === req.params['_id']);
     if (!group){
       res.status(400).send({ error: "Bạn không phải chủ nhóm!"});
     } else {
-      group = Group.findByIdAndDelete(req.params['_id']);
-      res.status(200).send({ message: "Xoá nhóm thành công!"});
+      group = Group.findByIdAndDelete(req.params['_id'], function (err, group) {
+        if (err){
+          console.log(err)
+      }
+        else{
+          res.status(200).send({ message: "Xoá nhóm thành công!", deleted: group});
+      }
+      });
+      
     }
   } catch (error) {
-    res.status(500).send(error);
+    res.status(500).send({error: error.message});
   }
 })
 
