@@ -38,14 +38,6 @@ const groupSchema = mongoose.Schema({
                 default: Date.now()
             }
         }
-    ],
-    tasks: [
-        {
-            taskId: {
-                type: String,
-                required: true
-            }
-        }
     ]
 });
 

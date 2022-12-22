@@ -156,14 +156,16 @@ router.patch('/api/users/me/addUser/:userId/toGroup/:groupId', auth, async (req,
         res.status(404).send({error: "Không tìm thấy người dùng này!"});
       } else {
         const memberInfo = ({userId: member._id, name: member.name});
-        group.member = group.member.concat(memberInfo);
-        group.save();
-        res.status(200).send({message: "Thêm thành công!"});
+        const existed = group.members.filter(function (member) {return member.userId === memberInfo.userId});
+        if (!existed){
+          group.members = group.members.concat(memberInfo);
+          group.save();
+          res.status(200).send({message: "Thêm thành công!"});
+        } else {res.status(400).send({message: "Người dùng đã ở trong nhóm!"})}
       }
-      res.status(200).send({ message: "Xoá nhóm thành công!"});
     }
   } catch (error) {
-    res.status(500).send(error);
+    res.status(500).send({error: error.message});
   }
 })
 
