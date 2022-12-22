@@ -26,7 +26,7 @@ const taskSchema = mongoose.Schema({
         required: true
     },
     groupId: {
-      type: string,
+      type: String,
       required: true
     }
 });
