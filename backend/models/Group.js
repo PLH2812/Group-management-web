@@ -7,18 +7,15 @@ const groupSchema = mongoose.Schema({
         required: true
     },
     description: {
-        type: String,
-        required: false
+        type: String
     },
     owner: [
         {
           userId: {
-            type: String,
-            required: true
+            type: String
           },
           name: {
-            type: String,
-            required: true
+            type: String
           }
         }
     ],
@@ -57,13 +54,6 @@ groupSchema.statics.getMyGroups = async function(userId){
     if(!myGroups)
         return {message: "Bạn chưa có nhóm!"};
     return myGroups;
-}
-
-groupSchema.statics.setGroupOwner = async function(userId, userName){
-    let group = this;
-    const ownerInfo = ({userId: userId, name: userName});
-    group.owner = group.owner.concat({ownerInfo});
-    await group.save();
 }
 
 //TODO: delete task before delete group
