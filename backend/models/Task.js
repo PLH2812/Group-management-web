@@ -22,6 +22,9 @@ const taskSchema = mongoose.Schema({
             type: String,
             required: true
         },
+        submission:{
+            type:String
+        },
         startDate: {
             type: Date,
             required: true

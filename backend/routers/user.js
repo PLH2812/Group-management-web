@@ -402,6 +402,7 @@ router.patch('/api/users/me/submitTask/:taskId/', auth, async(req, res) => {
     } else {
       const task = await Task.findOne({_id: req.params['taskId']});
       if (Date.now() < task.endDate){
+        task.submission = req.body.submission;
         task.status = "SUBMITTED";
         task.save();
         res.status(200).send({message: 'Submit task thành công!'})
