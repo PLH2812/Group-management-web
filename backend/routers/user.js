@@ -463,6 +463,16 @@ router.get('/api/users/me/getMyTasks/', auth, async (req, res) => {
   }
 })
 
+router.get('/api/users/me/getMyTask/:taskId', auth, async (req, res) => {
+  try {
+      const myTasks = await Task.getMyTasks(req.user._id);
+      myTasks = myTasks.filter((task) => {return task._id === req.params['taskId']});
+      res.status(200).send({myTasks});
+    } catch (error) {
+    res.status(500).send({error: error.message});
+  }
+})
+
 router.get('/api/users/me/getMyTasks/fromTable/:tableId', auth, async (req, res) => {
   try {
     const tableId = req.params['tableId'];
