@@ -411,4 +411,72 @@ router.patch('/api/users/me/submitTask/:taskId/', auth, async(req, res) => {
   }
 })
 
+router.get('/api/users/me/getTasks/fromTable/:tableId', auth, async (req, res) => {
+  try {
+    const tableId = req.params['tableId'];
+    const table = await Table.findOne({tableId});
+    if (!table){
+      res.status(400).send({ error: "Table không tồn tại!"});
+    } else {
+      const isOwner = await table.owner.find(userId => userId === req.user._id);
+      if (!isOwner){
+        res.status(404).send({error: 'Bạn không phải chủ nhóm!'})
+      } else {
+        const task = await Task.find({tableId: req.params['tableId']})
+        res.status(200).send({task})
+      }
+    }
+  } catch (error) {
+    res.status(500).send({error: error.message});
+  }
+})
+
+router.get('/api/users/me/getTask/:taskId/fromTable/:tableId', auth, async (req, res) => {
+  try {
+    const tableId = req.params['tableId'];
+    const table = await Table.findOne({tableId});
+    if (!table){
+      res.status(400).send({ error: "Table không tồn tại!"});
+    } else {
+      const isOwner = await table.owner.find(userId => userId === req.user._id);
+      if (!isOwner){
+        res.status(404).send({error: 'Bạn không phải chủ nhóm!'})
+      } else {
+        const task = await Task.findOne({
+          _id: req.params['taskId'],
+          tableId: req.params['tableId']
+        })
+        res.status(200).send({task})
+      }
+    }
+  } catch (error) {
+    res.status(500).send({error: error.message});
+  }
+})
+
+router.get('/api/users/me/getMyTasks/', auth, async (req, res) => {
+  try {
+    const myTasks = await Task.getMyTasks(req.user._id);
+    res.status(200).send({myTasks});
+  } catch (error) {
+    res.status(500).send({error: error.message});
+  }
+})
+
+router.get('/api/users/me/getMyTasks/fromTable/:tableId', auth, async (req, res) => {
+  try {
+    const tableId = req.params['tableId'];
+    const table = await Table.findOne({tableId});
+    if (!table){
+      res.status(400).send({ error: "Table không tồn tại!"});
+    } else {
+      const myTasks = await Task.getMyTasks(req.user._id);
+      myTasks = myTasks.filter((task) => {return task.tableId === req.params['tableId']});
+      res.status(200).send({myTasks});
+    }
+  } catch (error) {
+    res.status(500).send({error: error.message});
+  }
+})
+
 module.exports = router;
