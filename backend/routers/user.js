@@ -371,14 +371,19 @@ router.patch('/api/users/me/editTask/:taskId/fromTable/:tableId/', auth, async (
       if (!isOwner){
         res.status(404).send({error: 'Bạn không phải chủ nhóm!'})
       } else {
-        const task = await table.tasks.find(taskId => taskId === req.params['taskId']);
+        const task = await Task.findOne({_id: req.params['taskId']})
         if (!task) {
           res.status(404).send({error: 'Task không tồn tại!'})
         } else {
-          const newTask = req.body;
-          table.tasks = table.tasks.filter((task)=> { return task._id !== req.params['taskId']});
-          table.tasks = table.tasks.concat(newTask);
-          table.save();
+          const task = await Task.findByIdAndUpdate(req.params['taskId'], {
+            name: req.body.name,
+            description: req.body.description,
+            status: req.body.status,
+            assignedTo: req.body.assignedTo,
+            startDate: req.body.startDate,
+            endDate: req.body.endDate
+          })
+          task.save();
           res.status(200).send({message: 'Sửa task thành công!'})
         }
       }
@@ -388,27 +393,18 @@ router.patch('/api/users/me/editTask/:taskId/fromTable/:tableId/', auth, async (
   }
 })
 
-router.patch('/api/users/me/submitTask/:taskId/fromTable/:tableId', auth, async(req, res) => {
+router.patch('/api/users/me/submitTask/:taskId/', auth, async(req, res) => {
   try {
-    const myTasks = await Table.getMyTasks(req.user._id);
+    const myTasks = await Task.getMyTasks(req.user._id);
     const isMyTask = myTasks.find(task => task._id === req.params['taskId'])
     if (!isMyTask){
       res.status(400).send({ error: "Đây không phải task của bạn!"});
     } else {
-      const isOwner = await table.owner.find(userId => userId === req.user._id);
-      if (!isOwner){
-        res.status(404).send({error: 'Bạn không phải chủ nhóm!'})
-      } else {
-        const task = await table.tasks.find(taskId => taskId === req.params['taskId']);
-        if (!task) {
-          res.status(404).send({error: 'Task không tồn tại!'})
-        } else {
-          const data = await Table.findByIdAndUpdate(req.params['tableId'], {
-            status: "DELETED" //Change status to "DELETED"
-        })
-          res.status(200).send({message: 'Xoá task thành công!'})
-        }
-      }
+      const task = await Task.findByIdAndUpdate(req.params['taskId'], {
+        status: "SUBMITTED"
+      })
+      task.save();
+      res.status(200).send({message: 'Submit task thành công!'})
     }
   } catch (error) {
     res.status(500).send({error: error.message});
