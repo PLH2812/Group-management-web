@@ -3,6 +3,7 @@ const User = require("../models/User");
 const auth = require("../middleware/auth").auth;
 const checkStatus = require("../middleware/checkUserStatus");
 const Group = require("../models/Group");
+const Table = require("../models/Table");
 
 const router = express.Router();
 
@@ -51,6 +52,24 @@ router.post('api/users/forgotPassword', async(req,res) => {
     } catch (error) {
         res.status(400).send(error);
     }
+})
+
+router.get('/api/users/getUser/:userEmail', async(req,res) => {
+  try {
+    const user = await User.findOne({email: user.email});
+    if (!user) {
+      return res.status(404).send({error: 'Không tìm thấy kết quả nào!'});
+    }
+    else {
+      res.status(200).send({
+        _id: user._id,
+        email: user.email,
+        name: user.name
+      })
+    }
+  } catch (error) {
+    res.status(500).send({error: error.message});
+  }
 })
 
 router.get('/api/users/me', auth, async(req, res) => {
@@ -156,7 +175,7 @@ router.patch('/api/users/me/addUser/:userId/toGroup/:groupId', auth, async (req,
         res.status(404).send({error: "Không tìm thấy người dùng này!"});
       } else {
         const memberInfo = ({userId: member._id, name: member.name});
-        const existed = group.members.filter(function (member) {return member.userId === memberInfo.userId});
+        const existed = group.members.find(userId => userId = req.params['userId']);
         if (!existed){
           group.members = group.members.concat(memberInfo);
           group.save();
@@ -186,7 +205,69 @@ router.patch('/api/users/me/removeUser/:userId/fromGroup/:groupId', auth, async 
       }
     }
   } catch (error) {
-    res.status(500).send(error);
+    res.status(500).send({error: error.message});
+  }
+})
+
+router.post('/api/users/me/createTable/inGroup/:groupId', auth, async (req, res) => {
+  try {
+    const myGroups = await Group.getMyGroups(req.user._id);
+    const group = myGroups.find(g => g.id === req.params['groupId']);
+    if (!group){
+      res.status(400).send({ error: "Bạn không phải chủ nhóm!"});
+    } else {
+      const ownerInfo = ({userId: req.user._id, name: req.user.name});
+      const table = new Table(req.body);
+      table.owner = table.owner.concat(ownerInfo);
+      table.groupId = req.params['groupId'];
+      table.save();
+      res.status(200).send({message: "tạo thành công!"})
+    }
+  } catch (error) {
+    res.status(500).send({error: error.message});
+  }
+})
+
+router.get('/api/users/me/getTables/inGroup/:groupId', auth, async(req, res) =>{
+  try {
+    const myGroups = await Group.getMyGroups(req.user._id);
+    const group = myGroups.find(g => g.id === req.params['groupId']);
+    if (!group){
+      res.status(400).send({ error: "Bạn không phải chủ nhóm!"});
+    } else {
+      const tables = await Table.find({"groupId": req.params['groupId']})
+      res.status(200).send(tables);
+    }
+  } catch (error) {
+    res.status(500).send({error: error.message});
+  }
+})
+
+router.patch('/api/users/me/addUser/:userId/toTable/:tableId/:groupId', auth, async (req, res) => {
+  try {
+    const myGroups = await Group.getMyGroups(req.user._id);
+    const group = myGroups.find(g => g.id === req.params['groupId']);
+    if (!group){
+      res.status(400).send({ error: "Bạn không phải chủ nhóm!"});
+    } else {
+      const user = await group.members.find(userId => userId = req.params['userId']);
+      if (!user) {
+        res.status(404).send({error: 'Người dùng này không có trong nhóm'})
+      } else {
+        const tableId = req.params['tableId'];
+        const table = await Table.findOne({tableId});
+        if (!table){
+          res.status(404).send({error: 'Bảng không tồn tại!'})
+        } else {
+          const memberInfo = ({userId: user.userId, name: user.name});
+          table.members = table.members.concat(memberInfo);
+          table.save();
+          res.status(200).send({message: 'thêm thành công!'})
+        }
+      }
+    }
+  } catch (error) {
+    res.status(500).send({error: error.message});
   }
 })
 
