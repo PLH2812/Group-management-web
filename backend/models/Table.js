@@ -32,6 +32,9 @@ const tableSchema = mongoose.Schema({
             }
         }
     ],
+    url:{
+        type: String
+    },
     tasks: [
         {
             taskId: {
