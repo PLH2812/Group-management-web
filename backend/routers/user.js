@@ -231,14 +231,14 @@ router.post('/api/users/me/createTable/inGroup/:groupId', auth, async (req, res)
 
 router.get('/api/users/me/getTables/inGroup/:groupId', auth, async(req, res) =>{
   try {
-    const myGroups = await Group.getMyGroups(req.user._id);
-    const group = myGroups.find(g => g.id === req.params['groupId']);
-    if (!group){
-      res.status(400).send({ error: "Bạn không phải chủ nhóm!"});
-    } else {
-      const tables = await Table.find({"groupId": req.params['groupId']})
-      res.status(200).send(tables);
-    }
+      const group = await Group.findOne(req.params['groupId'])
+      const isInGroup = group.members.find(member => member.userId === req.user._id);
+      if (!isInGroup){
+        res.status(400).send({ message: "Bạn không ở trong group này!"})
+      } else {
+        const tables = await Table.find({"groupId": req.params['groupId']})
+        res.status(200).send(tables);
+      }
   } catch (error) {
     res.status(500).send({error: error.message});
   }
