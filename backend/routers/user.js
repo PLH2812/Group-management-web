@@ -271,4 +271,31 @@ router.patch('/api/users/me/addUser/:userId/toTable/:tableId/:groupId', auth, as
   }
 })
 
+router.patch('/api/users/me/removeUser/:userId/fromTable/:tableId/:groupId', auth, async (req, res) => {
+  try {
+    const myGroups = await Group.getMyGroups(req.user._id);
+    const group = myGroups.find(g => g.id === req.params['groupId']);
+    if (!group){
+      res.status(400).send({ error: "Bạn không phải chủ nhóm!"});
+    } else {
+      const tableId = req.params['tableId'];
+      const table = await Table.findOne({tableId});
+      if (!table){
+        res.status(404).send({error: 'Bảng không tồn tại!'})
+      } else {
+        const user = await table.members.find(userId => userId = req.params['userId']);
+        if (!user) {
+          res.status(404).send({error: 'Người dùng này không có trong table'})
+        } else {
+          table.members = table.members.filter(function(member) { return member.userId !== user.userId})
+          table.save();
+          res.status(200).send({message: 'Xoá người dùng khỏi table thành công!'})
+        }
+      }
+    }
+  } catch (error) {
+    res.status(500).send({error: error.message});
+  }
+})
+
 module.exports = router;
