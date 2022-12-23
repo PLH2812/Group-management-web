@@ -4,6 +4,7 @@ const auth = require("../middleware/auth").auth;
 const checkStatus = require("../middleware/checkUserStatus");
 const Group = require("../models/Group");
 const Table = require("../models/Table");
+const Task = require("../models/Task");
 
 const router = express.Router();
 
@@ -283,13 +284,129 @@ router.patch('/api/users/me/removeUser/:userId/fromTable/:tableId/:groupId', aut
       if (!table){
         res.status(404).send({error: 'Bảng không tồn tại!'})
       } else {
-        const user = await table.members.find(userId => userId = req.params['userId']);
+        const user = await table.members.find(userId => userId === req.params['userId']);
         if (!user) {
           res.status(404).send({error: 'Người dùng này không có trong table'})
         } else {
           table.members = table.members.filter(function(member) { return member.userId !== user.userId})
           table.save();
           res.status(200).send({message: 'Xoá người dùng khỏi table thành công!'})
+        }
+      }
+    }
+  } catch (error) {
+    res.status(500).send({error: error.message});
+  }
+})
+
+router.post('/api/users/me/giveTaskToUser/:userId/fromTable/:tableId/', auth, async (req, res) => {
+  try {
+    const tableId = req.params['tableId'];
+    const table = await Table.findOne({tableId});
+    if (!table){
+      res.status(400).send({ error: "Table không tồn tại!"});
+    } else {
+      const isOwner = await table.owner.find(userId => userId === req.user._id);
+      if (!isOwner){
+        res.status(404).send({error: 'Bạn không phải chủ nhóm!'})
+      } else {
+        const user = await table.members.find(userId => userId === req.params['userId']);
+        if (!user) {
+          res.status(404).send({error: 'Người dùng này không có trong table'})
+        } else {
+          const task = new Task(req.body);
+          const memberInfo = ({
+            userId: user.userId,
+            name: user.name
+          });
+          task.assignedTo = task.assignedTo.concat(memberInfo);
+          task.status = "ON GOING"
+          task.save();
+          table.tasks = table.tasks.concat({taskId: task._id});
+          table.save();
+          res.status(200).send({message: 'Thêm task thành công!'})
+        }
+      }
+    }
+  } catch (error) {
+    res.status(500).send({error: error.message});
+  }
+})
+
+router.delete('/api/users/me/deleteTask/:taskId/fromTable/:tableId/', auth, async (req, res) => {
+  try {
+    const tableId = req.params['tableId'];
+    const table = await Table.findOne({tableId});
+    if (!table){
+      res.status(400).send({ error: "Table không tồn tại!"});
+    } else {
+      const isOwner = await table.owner.find(userId => userId === req.user._id);
+      if (!isOwner){
+        res.status(404).send({error: 'Bạn không phải chủ nhóm!'})
+      } else {
+        const task = await Task.findOne({_id: req.params['taskId']})
+        if (!task) {
+          res.status(404).send({error: 'Task không tồn tại!'})
+        } else {
+          task = await Task.findByIdAndDelete(task._id)
+          table.tasks = table.tasks.filter((task)=> { return task.taskId !== req.params['taskId']});
+          table.save();
+          res.status(200).send({message: 'Xoá task thành công!'})
+        }
+      }
+    }
+  } catch (error) {
+    res.status(500).send({error: error.message});
+  }
+})
+
+router.patch('/api/users/me/editTask/:taskId/fromTable/:tableId/', auth, async (req, res) => {
+  try {
+    const tableId = req.params['tableId'];
+    const table = await Table.findOne({tableId});
+    if (!table){
+      res.status(400).send({ error: "Table không tồn tại!"});
+    } else {
+      const isOwner = await table.owner.find(userId => userId === req.user._id);
+      if (!isOwner){
+        res.status(404).send({error: 'Bạn không phải chủ nhóm!'})
+      } else {
+        const task = await table.tasks.find(taskId => taskId === req.params['taskId']);
+        if (!task) {
+          res.status(404).send({error: 'Task không tồn tại!'})
+        } else {
+          const newTask = req.body;
+          table.tasks = table.tasks.filter((task)=> { return task._id !== req.params['taskId']});
+          table.tasks = table.tasks.concat(newTask);
+          table.save();
+          res.status(200).send({message: 'Sửa task thành công!'})
+        }
+      }
+    }
+  } catch (error) {
+    res.status(500).send({error: error.message});
+  }
+})
+
+router.patch('/api/users/me/submitTask/:taskId/fromTable/:tableId', auth, async(req, res) => {
+  try {
+    const myTasks = await Table.getMyTasks(req.user._id);
+    const isMyTask = myTasks.find(task => task._id === req.params['taskId'])
+    if (!isMyTask){
+      res.status(400).send({ error: "Đây không phải task của bạn!"});
+    } else {
+      const isOwner = await table.owner.find(userId => userId === req.user._id);
+      if (!isOwner){
+        res.status(404).send({error: 'Bạn không phải chủ nhóm!'})
+      } else {
+        const task = await table.tasks.find(taskId => taskId === req.params['taskId']);
+        if (!task) {
+          res.status(404).send({error: 'Task không tồn tại!'})
+        } else {
+          const data = await Table.findByIdAndUpdate(req.params['tableId'], {
+            status: "DELETED" //Change status to "DELETED"
+        })
+          res.status(200).send({message: 'Xoá task thành công!'})
         }
       }
     }

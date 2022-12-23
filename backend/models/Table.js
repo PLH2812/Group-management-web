@@ -34,27 +34,9 @@ const tableSchema = mongoose.Schema({
     ],
     tasks: [
         {
-            assignedTo:{
-                userId: {
-                    type: String,
-                    required: true
-                },
-                name: {
-                    type: String,
-                    required: true
-                }
-            },
-            status:{
+            taskId: {
                 type: String,
-                required: true
-            },
-            startDate: {
-                type: Date,
-                required: true
-            },
-            endDate: {
-                type: Date,
-                required: true
+                requied: true
             }
         }
     ]
@@ -65,13 +47,6 @@ tableSchema.statics.getMyTables = async function(userId){
     if(!myTables)
         return {message: "Bạn chưa có bảng!"};
     return myGroups;
-}
-
-tableSchema.statics.getMyTasks = async function(userId){
-    let myTasks = await Table.find({"tasks.assignedTo.userId": userId })
-    if (!myTasks)
-        return {message: "Bạn không có task nào!"}
-    return myTasks;
 }
 
 const Table = mongoose.model('Table', tableSchema);
