@@ -320,7 +320,7 @@ router.post('/api/users/me/giveTaskToUser/:userId/fromTable/:tableId/', auth, as
             name: user.name
           });
           task.assignedTo = task.assignedTo.concat(memberInfo);
-          task.status = "ON GOING"
+          task.status = "UNSUBMITTED"
           task.save();
           table.tasks = table.tasks.concat({taskId: task._id});
           table.save();
@@ -400,11 +400,15 @@ router.patch('/api/users/me/submitTask/:taskId/', auth, async(req, res) => {
     if (!isMyTask){
       res.status(400).send({ error: "Đây không phải task của bạn!"});
     } else {
-      const task = await Task.findByIdAndUpdate(req.params['taskId'], {
-        status: "SUBMITTED"
-      })
-      task.save();
-      res.status(200).send({message: 'Submit task thành công!'})
+      const task = await Task.findOne({_id: req.params['taskId']});
+      if (Date.now() < task.endDate){
+        task.status = "SUBMITTED";
+        task.save();
+        res.status(200).send({message: 'Submit task thành công!'})
+      } else {
+        res.status(200).send({message: 'Đã hết hạn submit!'})
+      }
+      
     }
   } catch (error) {
     res.status(500).send({error: error.message});
