@@ -333,6 +333,30 @@ router.post('/api/users/me/giveTaskToUser/:userId/fromTable/:tableId/', auth, as
   }
 })
 
+router.post('/api/users/me/createTask/fromTable/:tableId/', auth, async (req, res) => {
+  try {
+    const tableId = req.params['tableId'];
+    const table = await Table.findOne({tableId});
+    if (!table){
+      res.status(400).send({ error: "Table không tồn tại!"});
+    } else {
+      const isOwner = await table.owner.find(userId => userId === req.user._id);
+      if (!isOwner){
+        res.status(404).send({error: 'Bạn không phải chủ nhóm!'})
+      } else {
+        const task = new Task(req.body);
+        task.status = "UNSUBMITTED"
+        task.save();
+        table.tasks = table.tasks.concat({taskId: task._id});
+        table.save();
+        res.status(200).send({message: 'Thêm task thành công!'})
+      }
+    }
+  } catch (error) {
+    res.status(500).send({error: error.message});
+  }
+})
+
 router.delete('/api/users/me/deleteTask/:taskId/fromTable/:tableId/', auth, async (req, res) => {
   try {
     const tableId = req.params['tableId'];
