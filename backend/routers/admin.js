@@ -1,6 +1,8 @@
 const express = require("express");
 const Group = require("../models/Group");
 const User = require("../models/User");
+const Task = require("../models/Task");
+const Table = require("../models/Table");
 const requireRole = require("../middleware/auth").requireRole;
 
 const router = express.Router();
@@ -149,5 +151,22 @@ router.delete("/api/admin/deleteGroup/:_id", requireRole(adminRole), async (req,
     }
  })
 
+ router.get('/api/users/me/getAllTasks', requireRole(adminRole), async (req, res) => {
+    try {
+      const tasks = await Task.find();
+      res.status(200).send(tasks);
+    } catch (error) {
+      res.status(500).send({error: error.message});
+    }
+  })
+  
+  router.get('/api/users/me/getAllTables', requireRole(adminRole), async (req, res) => {
+    try {
+      const tables = await Table.find();
+      res.status(200).send(tables);
+    } catch (error) {
+      res.status(500).send({error: error.message});
+    }
+  })
 
 module.exports = router;
