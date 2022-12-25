@@ -32,6 +32,10 @@ const taskSchema = mongoose.Schema({
         endDate: {
             type: Date,
             required: true
+        },
+        tableId:{
+            type:String,
+            required: true
         }
     });
 

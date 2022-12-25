@@ -49,7 +49,14 @@ tableSchema.statics.getMyTables = async function(userId){
     let myTables = await Table.find({"members.userId": userId })
     if(!myTables)
         return {message: "Bạn chưa có bảng!"};
-    return myGroups;
+    return myTables;
+}
+
+tableSchema.statics.getMyOwnTables = async function(userId){
+    let myTables = await Table.find({"owner.userId": userId })
+    if(!myTables)
+        return {message: "Bạn chưa có bảng!"};
+    return myTables;
 }
 
 const Table = mongoose.model('Table', tableSchema);

@@ -251,7 +251,7 @@ router.patch('/api/users/me/addUser/:userId/toTable/:tableId/:groupId', auth, as
     if (!group){
       res.status(400).send({ error: "Bạn không phải chủ nhóm!"});
     } else {
-      const user = await group.members.find(userId => userId = req.params['userId']);
+      const user = await group.members.find(member => member.userId === req.params['userId']);
       if (!user) {
         res.status(404).send({error: 'Người dùng này không có trong nhóm'})
       } else {
@@ -284,7 +284,7 @@ router.patch('/api/users/me/removeUser/:userId/fromTable/:tableId/:groupId', aut
       if (!table){
         res.status(404).send({error: 'Bảng không tồn tại!'})
       } else {
-        const user = await table.members.find(userId => userId === req.params['userId']);
+        const user = await table.members.find(member => member.userId === req.params['userId']);
         if (!user) {
           res.status(404).send({error: 'Người dùng này không có trong table'})
         } else {
@@ -301,16 +301,16 @@ router.patch('/api/users/me/removeUser/:userId/fromTable/:tableId/:groupId', aut
 
 router.post('/api/users/me/giveTaskToUser/:userId/fromTable/:tableId/', auth, async (req, res) => {
   try {
-    const tableId = req.params['tableId'];
-    const table = await Table.findOne({tableId});
+    const table = await Table.findOne({_id: req.params['tableId']});
     if (!table){
       res.status(400).send({ error: "Table không tồn tại!"});
     } else {
-      const isOwner = await table.owner.find(userId => userId === req.user._id);
+      const myTables = await Table.getMyOwnTables(req.user._id);
+      const isOwner = myTables.find(t => t.id === req.params['tableId']);
       if (!isOwner){
         res.status(404).send({error: 'Bạn không phải chủ nhóm!'})
       } else {
-        const user = await table.members.find(userId => userId === req.params['userId']);
+        const user = table.members.find(member => member.userId === req.params['userId']);
         if (!user) {
           res.status(404).send({error: 'Người dùng này không có trong table'})
         } else {
@@ -319,7 +319,8 @@ router.post('/api/users/me/giveTaskToUser/:userId/fromTable/:tableId/', auth, as
             userId: user.userId,
             name: user.name
           });
-          task.assignedTo = task.assignedTo.concat(memberInfo);
+          task.tableId = req.params['tableId'];
+          task.assignedTo = memberInfo;
           task.status = "UNSUBMITTED"
           task.save();
           table.tasks = table.tasks.concat({taskId: task._id});
@@ -340,7 +341,8 @@ router.post('/api/users/me/createTask/fromTable/:tableId/', auth, async (req, re
     if (!table){
       res.status(400).send({ error: "Table không tồn tại!"});
     } else {
-      const isOwner = await table.owner.find(userId => userId === req.user._id);
+      const myTables = await Table.getMyOwnTables(req.user._id);
+      const isOwner = myTables.find(t => t.id === req.params['tableId']);
       if (!isOwner){
         res.status(404).send({error: 'Bạn không phải chủ nhóm!'})
       } else {
@@ -364,7 +366,8 @@ router.delete('/api/users/me/deleteTask/:taskId/fromTable/:tableId/', auth, asyn
     if (!table){
       res.status(400).send({ error: "Table không tồn tại!"});
     } else {
-      const isOwner = await table.owner.find(userId => userId === req.user._id);
+      const myTables = await Table.getMyOwnTables(req.user._id);
+      const isOwner = myTables.find(t => t.id === req.params['tableId']);
       if (!isOwner){
         res.status(404).send({error: 'Bạn không phải chủ nhóm!'})
       } else {
@@ -391,7 +394,8 @@ router.patch('/api/users/me/editTask/:taskId/fromTable/:tableId/', auth, async (
     if (!table){
       res.status(400).send({ error: "Table không tồn tại!"});
     } else {
-      const isOwner = await table.owner.find(userId => userId === req.user._id);
+      const myTables = await Table.getMyOwnTables(req.user._id);
+      const isOwner = myTables.find(t => t.id === req.params['tableId']);
       if (!isOwner){
         res.status(404).send({error: 'Bạn không phải chủ nhóm!'})
       } else {
@@ -447,7 +451,8 @@ router.get('/api/users/me/getTasks/fromTable/:tableId', auth, async (req, res) =
     if (!table){
       res.status(400).send({ error: "Table không tồn tại!"});
     } else {
-      const isOwner = await table.owner.find(userId => userId === req.user._id);
+      const myTables = await Table.getMyOwnTables(req.user._id);
+      const isOwner = myTables.find(t => t.id === req.params['tableId']);
       if (!isOwner){
         res.status(404).send({error: 'Bạn không phải chủ nhóm!'})
       } else {
@@ -467,7 +472,8 @@ router.get('/api/users/me/getTask/:taskId/fromTable/:tableId', auth, async (req,
     if (!table){
       res.status(400).send({ error: "Table không tồn tại!"});
     } else {
-      const isOwner = await table.owner.find(userId => userId === req.user._id);
+      const myTables = await Table.getMyOwnTables(req.user._id);
+      const isOwner = myTables.find(t => t.id === req.params['tableId']);
       if (!isOwner){
         res.status(404).send({error: 'Bạn không phải chủ nhóm!'})
       } else {
