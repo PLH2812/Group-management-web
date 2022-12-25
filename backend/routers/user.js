@@ -424,12 +424,11 @@ router.patch('/api/users/me/editTask/:taskId/fromTable/:tableId/', auth, async (
 
 router.patch('/api/users/me/submitTask/:taskId/', auth, async(req, res) => {
   try {
-    const myTasks = await Task.getMyTasks(req.user._id);
-    const isMyTask = myTasks.find(task => task._id === req.params['taskId'])
+    const task = await Task.findOne({_id: req.params['taskId']});
+    const isMyTask = (task.assignedTo.userId == req.user._id);
     if (!isMyTask){
       res.status(400).send({ error: "Đây không phải task của bạn!"});
     } else {
-      const task = await Task.findOne({_id: req.params['taskId']});
       if (Date.now() < task.endDate){
         task.submission = req.body.submission;
         task.status = "SUBMITTED";
