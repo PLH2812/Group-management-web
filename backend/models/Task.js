@@ -10,12 +10,10 @@ const taskSchema = mongoose.Schema({
         },
         assignedTo:{
             userId: {
-                type: String,
-                required: true
+                type: String
             },
             name: {
-                type: String,
-                required: true
+                type: String
             }
         },
         status:{
