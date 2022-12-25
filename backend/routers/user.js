@@ -347,6 +347,7 @@ router.post('/api/users/me/createTask/fromTable/:tableId/', auth, async (req, re
         res.status(404).send({error: 'Bạn không phải chủ nhóm!'})
       } else {
         const task = new Task(req.body);
+        task.tableId = req.params['tableId'];
         task.status = "UNSUBMITTED"
         task.save();
         table.tasks = table.tasks.concat({taskId: task._id});
