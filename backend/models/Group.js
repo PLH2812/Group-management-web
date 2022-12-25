@@ -41,6 +41,13 @@ const groupSchema = mongoose.Schema({
 });
 
 groupSchema.statics.getMyGroups = async function(userId){
+    let myGroups = await Group.find({"members.userId": userId })
+    if(!myGroups)
+        return {message: "Bạn chưa có nhóm!"};
+    return myGroups;
+}
+
+groupSchema.statics.getMyOwnGroups = async function(userId){
     let myGroups = await Group.find({"owner.userId": userId })
     if(!myGroups)
         return {message: "Bạn chưa có nhóm!"};

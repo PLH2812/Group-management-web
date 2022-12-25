@@ -144,7 +144,7 @@ router.post('/api/users/me/createGroup', auth, async (req, res) => {
 
 router.delete('/api/users/me/deleteGroup/:_id', auth, async (req, res) => {
   try {
-    let myGroups = await Group.getMyGroups(req.user._id);
+    let myGroups = await Group.getMyOwnGroups(req.user._id);
     let group = myGroups.find(g => g.id === req.params['_id']);
     if (!group){
       res.status(400).send({ error: "Bạn không phải chủ nhóm!"});
@@ -166,7 +166,7 @@ router.delete('/api/users/me/deleteGroup/:_id', auth, async (req, res) => {
 
 router.patch('/api/users/me/addUser/:userId/toGroup/:groupId', auth, async (req, res) => {
   try {
-    const myGroups = await Group.getMyGroups(req.user._id);
+    const myGroups = await Group.getMyOwnGroups(req.user._id);
     const group = myGroups.find(g => g.id === req.params['groupId']);
     if (!group){
       res.status(400).send({ error: "Bạn không phải chủ nhóm!"});
@@ -191,7 +191,7 @@ router.patch('/api/users/me/addUser/:userId/toGroup/:groupId', auth, async (req,
 
 router.patch('/api/users/me/removeUser/:userId/fromGroup/:groupId', auth, async (req, res) => {
   try {
-    const myGroups = await Group.getMyGroups(req.user._id);
+    const myGroups = await Group.getMyOwnGroups(req.user._id);
     const group = myGroups.find(g => g.id === req.params['groupId']);
     if (!group){
       res.status(400).send({ error: "Bạn không phải chủ nhóm!"});
@@ -212,7 +212,7 @@ router.patch('/api/users/me/removeUser/:userId/fromGroup/:groupId', auth, async 
 
 router.post('/api/users/me/createTable/inGroup/:groupId', auth, async (req, res) => {
   try {
-    const myGroups = await Group.getMyGroups(req.user._id);
+    const myGroups = await Group.getMyOwnGroups(req.user._id);
     const group = myGroups.find(g => g.id === req.params['groupId']);
     if (!group){
       res.status(400).send({ error: "Bạn không phải chủ nhóm!"});
@@ -246,7 +246,7 @@ router.get('/api/users/me/getTables/inGroup/:groupId', auth, async(req, res) =>{
 
 router.patch('/api/users/me/addUser/:userId/toTable/:tableId/:groupId', auth, async (req, res) => {
   try {
-    const myGroups = await Group.getMyGroups(req.user._id);
+    const myGroups = await Group.getMyOwnGroups(req.user._id);
     const group = myGroups.find(g => g.id === req.params['groupId']);
     if (!group){
       res.status(400).send({ error: "Bạn không phải chủ nhóm!"});
@@ -274,7 +274,7 @@ router.patch('/api/users/me/addUser/:userId/toTable/:tableId/:groupId', auth, as
 
 router.patch('/api/users/me/removeUser/:userId/fromTable/:tableId/:groupId', auth, async (req, res) => {
   try {
-    const myGroups = await Group.getMyGroups(req.user._id);
+    const myGroups = await Group.getMyOwnGroups(req.user._id);
     const group = myGroups.find(g => g.id === req.params['groupId']);
     if (!group){
       res.status(400).send({ error: "Bạn không phải chủ nhóm!"});
