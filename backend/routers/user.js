@@ -57,7 +57,7 @@ router.post('api/users/forgotPassword', async(req,res) => {
 
 router.get('/api/users/getUser/:userEmail', async(req,res) => {
   try {
-    const user = await User.findOne({email: user.email});
+    const user = await User.findOne({email: req.params['userEmail']});
     if (!user) {
       return res.status(404).send({error: 'Không tìm thấy kết quả nào!'});
     }
