@@ -1,0 +1,52 @@
+.wrapper {
+    width: 260px;
+    border: 1px solid #8888;
+    box-shadow: 1px 1px 1px #8888;
+    height: calc(100vh - 50px);
+
+    .header {
+        display: flex;
+        align-items: center;
+        padding: 14px;
+
+        .icon {
+            width: 30px;
+            height: 30px;
+            text-align: center;
+            line-height: 30px;
+            background-color: #639390;
+            border-radius: 3px;
+            margin-right: 10px;
+        }
+
+    }
+
+    .body {
+        padding: 0 10px;
+        .top{
+            margin: 10px 0;
+        }
+        .bottom {
+            ul{
+                padding: 0;
+                margin: 0;
+            }
+            li {
+                list-style: none;
+                padding: 9px;
+                .link {
+                    display: block;
+                    text-decoration: none;
+                    color: #333;
+                    width: 100%;
+
+                }
+            }
+
+            .active {
+                background-color: #BBE0DE;
+                border-radius: 6px;
+            }
+        }
+    }
+}

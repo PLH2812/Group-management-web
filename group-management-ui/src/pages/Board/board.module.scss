@@ -1,0 +1,47 @@
+.wrapper {
+    .body {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr 1fr;
+        gap: 10px;
+
+        .createcard {
+            text-align: center;
+            line-height: 100px;
+            border-radius: 4px;
+            background-color: #d1d1d1;
+            cursor: pointer;
+
+        }
+
+        .createcard:hover {
+            background-color: #e0e0e0;
+        }
+
+    }
+}
+
+.wrapper_top {
+    height: 40px;
+    position: relative;
+    width: 100%;
+    display: flex;
+    margin: 10px 0;
+    align-items: center;
+    justify-content: space-between;
+    .wrapper_btn {
+        border: 1px solid #639390;
+        border-radius: 2px;
+        margin-left: 20px;
+        padding: 5px;
+    }
+
+    .wrapper_btn:hover {
+        background-color: #BBE0DE;
+        cursor: pointer;
+    }
+
+    .btn_add_user {
+        font-size: 13px;
+        padding: 5px;
+    }
+}

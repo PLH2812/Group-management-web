@@ -1,0 +1,108 @@
+.wrapper {
+    min-width: 220px;
+    max-width: 220px;
+
+    ul {
+        list-style: none;
+        padding: 0;
+
+        li {
+            margin-bottom: 14px;
+
+            a {
+                text-decoration: none;
+                color: #201b1b;
+                display: flex;
+                column-gap: 5px;
+                padding: 10px;
+            }
+        }
+    }
+
+    .work {
+        div {
+
+            .addwork {
+
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+
+            button {
+                background-color: transparent;
+                border: none;
+                border-radius: 3px;
+                padding: 6px 9px;
+                font-size: 20px;
+                cursor: pointer;
+
+            }
+
+            button:hover {
+                background-color: rgba(9, 30, 66, 0.08);
+            }
+
+            .wrapperwork {
+                cursor: pointer;
+
+                .workitem,
+                .wrapper {
+                    display: flex;
+                    align-items: center;
+
+
+                    .icon {
+                        justify-content: center;
+                        background-color: #3b584c;
+                        margin: 6px;
+                        border-radius: 4px;
+                        text-align: center;
+                        color: #fff;
+                        padding: 6px 10px;
+                    }
+
+                    .title {
+                        font-size: 14px;
+                    }
+
+                }
+
+                ul {
+                    margin: 0;
+
+                    li {
+                        margin: 0;
+
+                        a {
+                            display: flex;
+                            align-items: center;
+                            margin-bottom: 0;
+                            border-radius: 4px;
+                            transition: 0.3s;
+
+
+                            .icon {
+                                margin-left: 30px;
+                                line-height: 2px;
+                            }
+
+                            .title {
+                                font-size: 13px;
+                            }
+                        }
+                    }
+
+                    a:hover {
+                        background-color: #e0e0e0;
+                    }
+                }
+            }
+        }
+    }
+}
+
+.active {
+    background-color: #BBE0DE;
+    border-radius: 6px;
+}

@@ -1,0 +1,192 @@
+.wrapper {
+    margin-left: 10px;
+
+    .board_header {
+        height: 40px;
+        position: relative;
+        width: 100%;
+        display: flex;
+        margin: 10px 0;
+
+        // justify-content: space-between;
+        .board_title {
+            font-weight: 600;
+        }
+
+        .board_title,
+        .btn_add_user {
+            line-height: 40px;
+
+        }
+
+        .wrapper_btn {
+            border: 1px solid #639390;
+            border-radius: 2px;
+            margin-left: 20px;
+        }
+        .wrapper_btn:hover{
+            background-color: #BBE0DE;
+            cursor: pointer;
+        }
+
+        .btn_add_user {
+            font-size: 13px;
+            padding: 5px;
+        }
+    }
+
+    .board_body {
+        display: flex;
+        overflow-x: auto;
+        overflow-y: hidden;
+        white-space: nowrap;
+        column-gap: 10px;
+
+        .wrapper_card {
+            height: calc(100vh - 110px);
+
+            .card {
+                min-width: 280px;
+                border: 1px solid #8888;
+                box-shadow: 1px 1px 1px #8888;
+                border-radius: 3px;
+                background-color: #ebecf0;
+
+
+                .card_list_work {
+                    max-height: calc(100vh - 167px);
+                    width: 100%;
+                    overflow-y: auto;
+                    white-space: nowrap;
+                    position: relative;
+                    .done_task{
+                        border: 2px solid #53cd53;
+                    }
+                }
+
+
+                .card_title {
+                    padding: 6px;
+                    position: relative;
+
+                    .button {
+                        position: absolute;
+                        left: 100px;
+                        top: 150px;
+                    }
+                }
+            }
+        }
+
+    }
+}
+
+.title {
+    padding: 0 5px;
+}
+
+.work {
+    background-color: #ffff;
+    justify-content: space-between;
+    white-space: normal;
+    max-width: 300px;
+    
+
+    // .button_pick{
+    //     position: absolute;
+    //     right: 9px;
+    //     height: 32px;
+    //     width: 32px;
+        
+    // }
+    .button_pick,
+    .button_done,
+    .button_cancel {
+        position: absolute;
+        right: 0%;
+        opacity: 0;
+        transition: .3s;
+        border-radius: 4px;
+        cursor: pointer;
+        height: 32px;
+        width: 32px;
+    }
+
+    .button_pick {
+        background-image: url(../../assets/picking.png);
+        background-color: transparent;
+        border: 2px solid #639390;
+        // border: none;
+        // border-radius: 50%;
+    }
+
+    .button_done {
+        background-color: transparent;
+        border: 2px solid #3db93d;
+    }
+
+    .button_cancel {
+        background-color: transparent;
+        border: 2px solid #c9302c;
+    }
+
+    .button_pick:hover {
+        background-color: #cdeeee;
+    }
+
+    .button_done:hover {
+        background-color: #53f853;
+    }
+
+    .button_cancel:hover {
+        background-color: #f9524c;
+    }
+
+}
+.option{
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    top: -40px;
+    // left: 278px;
+}
+
+.work:hover {
+
+    .button_pick,
+    .button_cancel,
+    .button_done {
+        opacity: 1;
+    }
+
+    .button_pick,
+    .button_cancel {
+        right: 10px;
+    }
+
+    .button_done {
+        right: 45px;
+    }
+}
+
+.action_add,
+.work {
+    display: flex;
+    align-items: center;
+    padding: 8px;
+    margin: 4px 4px;
+    border-radius: 4px;
+    position: relative;
+
+    .icon {
+        line-height: 8px;
+        margin-right: 6px;
+    }
+    
+
+}
+
+.action_add:hover {
+    background-color: #BBE0DE;
+}
+

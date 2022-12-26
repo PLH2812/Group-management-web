@@ -1,0 +1,129 @@
+.header {
+    height: 50px;
+    background-color: #639390;
+    display: flex;
+    position: relative;
+
+    section {
+        display: flex;
+        width: 100%;
+        align-items: center;
+        justify-content: space-between;
+
+        div {
+            display: flex;
+
+            .left,
+            .center {
+                div {
+                    display: flex;
+                    gap: 6px;
+
+                    .btnshow {
+
+                        background-color: transparent;
+                        border: none;
+                        padding: 10px;
+                        border-radius: 3px;
+                        cursor: pointer;
+                        transition: background-color 0.2s ease-in-out 0s;
+                        display: flex;
+                        align-items: center;
+
+                        .arrow {
+                            margin-left: 3px;
+                            line-height: 2px;
+                        }
+                    }
+
+                    .btntitle {
+                        color: #201b1b;
+                    }
+
+                    .btnshow:hover {
+                        background-color: #BBE0DE;
+                    }
+
+                }
+
+
+            }
+
+            .center {
+                .create {
+                    background-color: #3b584c;
+                    padding: 8px;
+                    border: none;
+                    border-radius: 3px;
+                    margin-left: 10px;
+                    transition: background-color 0.2s ease-in-out 0s;
+                    cursor: pointer;
+                }
+
+                .create:hover {
+                    background-color: #BBE0DE;
+                }
+            }
+        }
+
+        .wrapperright {
+
+            .right {
+
+                gap: 16px;
+                align-items: center;
+
+                .avatar {
+                    width: 24px;
+                    height: 24px;
+                    margin-right: 16px;
+                    background-image: url(data:image/jpeg;base64,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);
+                    align-items: center;
+                    background-size: cover;
+                    border-radius: 50%;
+                }
+
+                .avatar:hover {
+                    cursor: pointer;
+
+                    .profile {
+                        cursor: pointer;
+                        display: block;
+                    }
+                }
+
+                .profile {
+                    display: none;
+                    position: absolute;
+                    border: 1px solid #3333;
+                    border-radius: 2px;
+                    top: 44px;
+                    right: 16px;
+
+                    .sepera {
+                        position: absolute;
+                        opacity: 0;
+                        top: -25px;
+                        width: 100%;
+                        background-color: red;
+                        height: 27px;
+                    }
+
+                    .logout {
+                        padding: 10px 10px;
+                        border-bottom: 1px solid #3333;
+                        cursor: pointer;
+                    }
+                }
+
+
+
+
+
+
+            }
+        }
+
+    }
+
+}

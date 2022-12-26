@@ -1,0 +1,11 @@
+.wrapper {
+    .body {
+        display: flex;
+
+        .content{
+            // display: inline-block;
+            max-width:calc(100% - 260px);
+            position: relative;
+        }
+    }
+}
