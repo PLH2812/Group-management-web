@@ -176,7 +176,7 @@ router.patch('/api/users/me/addUser/:userId/toGroup/:groupId', auth, async (req,
         res.status(404).send({error: "Không tìm thấy người dùng này!"});
       } else {
         const memberInfo = ({userId: member._id, name: member.name});
-        const existed = group.members.find(member => member.userId === req.params['userId']);
+        const existed = group.members.find(member => member.userId == req.params['userId']);
         if (!existed){
           group.members = group.members.concat(memberInfo);
           group.save();
