@@ -176,7 +176,7 @@ router.patch('/api/users/me/addUser/:userId/toGroup/:groupId', auth, async (req,
         res.status(404).send({error: "Không tìm thấy người dùng này!"});
       } else {
         const memberInfo = ({userId: member._id, name: member.name});
-        const existed = group.members.find(userId => userId = req.params['userId']);
+        const existed = group.members.find(member => member.userId === req.params['userId']);
         if (!existed){
           group.members = group.members.concat(memberInfo);
           group.save();
@@ -348,7 +348,7 @@ router.post('/api/users/me/createTask/fromTable/:tableId/', auth, async (req, re
       } else {
         const task = new Task(req.body);
         task.tableId = req.params['tableId'];
-        task.status = "UNSUBMITTED"
+        task.status = "UNSUBMITTED";
         task.save();
         table.tasks = table.tasks.concat({taskId: task._id});
         table.save();
