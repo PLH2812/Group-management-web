@@ -177,6 +177,7 @@ router.patch('/api/users/me/addUser/:userId/toGroup/:groupId', auth, async (req,
       } else {
         const memberInfo = ({userId: member._id, name: member.name});
         const existed = group.members.find(member => member.userId == req.params['userId']);
+        
         if (!existed){
           group.members = group.members.concat(memberInfo);
           group.save();
@@ -200,6 +201,16 @@ router.patch('/api/users/me/removeUser/:userId/fromGroup/:groupId', auth, async 
       if (!member) {
         res.status(404).send({error: "Không tìm thấy người dùng này!"});
       } else {
+        const tables = await Table.find({groupId: req.params['groupId']});
+        tables.forEach(async function(table){
+          const tasks = await Task.find({"assignedTo.userId": req.params['userId'], "tableId": table._id })
+          tasks.forEach(function(task){
+              task.assignedTo = null;
+              task.save();
+          })
+          table.members = table.members.filter(function(member) { return member.userId !== user.userId})
+          table.save();
+        })
         group.members = group.members.filter(function(mem) { return mem.userId != member._id; }); 
         group.save();
         res.status(200).send({message: "Đã xoá người dùng khỏi nhóm!"});
@@ -288,6 +299,11 @@ router.patch('/api/users/me/removeUser/:userId/fromTable/:tableId/:groupId', aut
         if (!user) {
           res.status(404).send({error: 'Người dùng này không có trong table'})
         } else {
+          const tasks = await Task.find({"assignedTo.userId": req.params['userId'], "tableId": table._id })
+          tasks.forEach(function(task){
+              task.assignedTo = null;
+              task.save();
+          })
           table.members = table.members.filter(function(member) { return member.userId !== user.userId})
           table.save();
           res.status(200).send({message: 'Xoá người dùng khỏi table thành công!'})
