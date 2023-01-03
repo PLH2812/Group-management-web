@@ -17,8 +17,6 @@ router.post("/api/users/register", async (req, res) => {
       user.role = process.env.ROLE_USER;
       user.status = process.env.USER_STATUS_ACTIVE;
       await user.save();
-      const token = await user.generateAuthToken();
-      res.status(201).send({ token });
     } else {
       res.status(400).send({error: 'Người dùng đã tồn tại!'});
     }
@@ -35,25 +33,18 @@ router.post('/api/users/login', checkStatus, async(req, res) => {
             return res.status(401).send({error: 'Đăng nhập thất bại!'});
         }
         const token = await user.generateAuthToken();
-        res.send({ token });
+        res
+        .cookie("JWT", token, {
+          httpOnly: true,
+          secure: true,
+          sameSite: 'lax'
+        })
+        .status(200)
+        .send({message: 'Đăng nhập thành công'})
     } catch (error) {
-        res.status(400).send(error);
+        res.status(400).send(error.message);
     }
 });
-
-router.post('api/users/forgotPassword', async(req,res) => {
-  try {
-        const user = await User.findOne({email: user.email});
-        if (!user) {
-          return res.status(404).send({error: 'Người dùng không tồn tại'});
-        }
-        else {
-          //generate random code + gui email
-        }
-    } catch (error) {
-        res.status(400).send(error);
-    }
-})
 
 router.get('/api/users/getUser/:userEmail', async(req,res) => {
   try {
@@ -103,7 +94,7 @@ router.post("/api/users/me/logout", auth, async (req, res) => {
         return token.token != req.token;
       });
       await req.user.save();
-      res.status(200).send({ message: "Đăng xuất thành cồng!"});
+      res.clearCookie("JWT").status(200).send({ message: "Đăng xuất thành cồng!"});
     } catch (error) {
       res.status(500).send(error);
     }
@@ -114,7 +105,7 @@ router.post('/api/users/me/logoutall', auth, async(req, res) => {
   try {
       req.user.tokens.splice(0, req.user.tokens.length);
       await req.user.save();
-      res.status(200).send({ message: "Đăng xuất thành cồng!"});
+      res.clearCookie("JWT").status(200).send({ message: "Đăng xuất thành cồng!"});
   } catch (error) {
       res.status(500).send(error);
   }
