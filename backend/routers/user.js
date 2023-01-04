@@ -36,7 +36,7 @@ router.post('/api/users/login', checkStatus, async(req, res) => {
         res
         .cookie("JWT", token, {
           httpOnly: true,
-          secure: false,
+          secure: process.env.PROJECT_STATUS !== "DEVELOPING",
           sameSite: 'lax'
         })
         .status(200)
@@ -233,8 +233,8 @@ router.post('/api/users/me/createTable/inGroup/:groupId', auth, async (req, res)
 
 router.get('/api/users/me/getTables/inGroup/:groupId', auth, async(req, res) =>{
   try {
-      const group = await Group.findOne(req.params['groupId'])
-      const isInGroup = group.members.find(member => member.userId === req.user._id);
+      const group = await Group.findOne({_id: req.params['groupId']})
+      const isInGroup = group.members.find(member => member.userId == req.user._id);
       if (!isInGroup){
         res.status(400).send({ message: "Bạn không ở trong group này!"})
       } else {
