@@ -17,6 +17,7 @@ router.post("/api/users/register", async (req, res) => {
       user.role = process.env.ROLE_USER;
       user.status = process.env.USER_STATUS_ACTIVE;
       await user.save();
+      res.status(200).send({message: "Đăng ký thành công!"});
     } else {
       res.status(400).send({error: 'Người dùng đã tồn tại!'});
     }
