@@ -286,8 +286,7 @@ router.patch('/api/users/me/removeUser/:userId/fromTable/:tableId/:groupId', aut
       if (req.user._id == req.params.user._id) { 
         return res.status(400).send({ message: "Bạn không thể xoá chủ nhóm ra khỏi nhóm!"}
       )};
-      const tableId = req.params['tableId'];
-      const table = await Table.findOne({tableId});
+      const table = await Table.findOne({_id: req.params['tableId']});
       if (!table){
         res.status(404).send({error: 'Bảng không tồn tại!'})
       } else {
