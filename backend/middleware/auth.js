@@ -3,7 +3,7 @@ const User = require("../models/User");
 
 const auth = async (req, res, next) => {
   try {
-    const token = req.header("Authorization").replace("Bearer ", "");
+    const token = req.cookies['JWT'];
     const data = jwt.verify(token, process.env.JWT_KEY);
     try {
       const user = await User.findOne({ _id: data._id, "tokens.token": token });
@@ -17,7 +17,7 @@ const auth = async (req, res, next) => {
       res.status(401).send({ error: "Không được phép truy cập" });
     }
   } catch (error) {
-    res.status(500).send({ error:"Token không hợp lệ"});
+    res.status(500).send({ error: error.message });
   }
 };
 

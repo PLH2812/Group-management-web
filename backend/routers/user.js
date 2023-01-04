@@ -36,7 +36,7 @@ router.post('/api/users/login', checkStatus, async(req, res) => {
         res
         .cookie("JWT", token, {
           httpOnly: true,
-          secure: true,
+          secure: false,
           sameSite: 'lax'
         })
         .status(200)
