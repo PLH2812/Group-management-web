@@ -199,7 +199,7 @@ router.patch('/api/users/me/removeUser/:userId/fromGroup/:groupId', auth, async 
               task.assignedTo = null;
               task.save();
           })
-          table.members = table.members.filter(function(member) { return member.userId !== user.userId})
+          table.members = table.members.filter(function(member) { return member.userId !== req.params['userId']})
           table.save();
         })
         group.members = group.members.filter(function(mem) { return mem.userId != member._id; }); 
