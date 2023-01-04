@@ -8,7 +8,7 @@ import { createGroup, getGroup, getProfileUser } from '../../../hooks/requests'
 function CreateGruopDialog() {
 
 
-    const { openDialog, setOpenDialog } = useContext(AppContext)
+    const { openDialog, setOpenDialog, setRender, render } = useContext(AppContext)
 
 
     const handleSubmit = async () => {
@@ -27,11 +27,8 @@ function CreateGruopDialog() {
                 name: profile.name,
             }],
         }
-        createGroup(group)
+        createGroup(group).then(res=>setRender(!render))
     }
-
-
-
     return (
         <>
 

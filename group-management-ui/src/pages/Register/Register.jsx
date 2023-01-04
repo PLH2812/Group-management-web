@@ -18,9 +18,10 @@ function Register() {
 
             const result = await registerRequest(account).then(response => response.json())
                 .then(data => data)
+                console.log(result);
             const success = result
             if (success) {
-                console.log(result);
+                alert('Đăng ký thành công!')
                 navigate('/login')
             } else {
                 alert('Đăng kí không thành công')

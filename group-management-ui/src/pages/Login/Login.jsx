@@ -4,6 +4,8 @@ import {loginRequest} from "../../hooks/requests"
 import { Link, useNavigate} from "react-router-dom";
 import styles from './login.module.scss'
 import { AppContext } from "../../Context/AppContext";
+import { useCookies } from "react-cookie";
+
 function Login() {
     const navigate = useNavigate()
     const {setRender, render} = useContext(AppContext)
@@ -15,15 +17,14 @@ function Login() {
             password
         }
         const result = await loginRequest(account).then(response => response.json())
-        
-        const success = result.token
+        const success = result.message
         if(success){
             localStorage.setItem('access_token', result.token)
             // localStorage.setItem('gmail', result.email)
             navigate('/home')
             setRender(!render)
         }else{
-            alert(result.messenger)
+            alert(result.error)
         }
     }
     return (

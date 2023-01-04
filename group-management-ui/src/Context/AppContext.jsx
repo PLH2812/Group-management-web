@@ -105,14 +105,14 @@ export const AppProvider = ({ children }) => {
                 name: profile.name
             }],
             task: ['Task 1'],
-            url: generateString(8),
+            url: generateString(8).trim(),
         }
         // for (var i = 0; i < data.length; i++) {
         //     if (data[i].id == boardAdd.id) {
         //         dataBoard = [...dataBoard, boardAdd]
         //     }
         // }
-        createTableInGroup(table1, id).then(res => setRender(res.ok))
+        createTableInGroup(table1, id).then(res => setRender(!render))
 
         // setRender({
         //     loading:false,

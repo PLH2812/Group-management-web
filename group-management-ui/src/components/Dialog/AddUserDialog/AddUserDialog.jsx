@@ -2,7 +2,7 @@ import { useContext, useEffect, useState } from 'react';
 import { AppContext } from '../../../Context/AppContext';
 import BoardCard from '../../BoardCard';
 import styles from './createboarddialog.module.scss'
-import { addUserToGroup, getUserByEmail } from '../../../hooks/requests'
+import { addUserToGroup, addUserToTable, getUserByEmail } from '../../../hooks/requests'
 
 
 function AddUserDialog({ idGroup, idTable, type }) {
@@ -29,8 +29,12 @@ function AddUserDialog({ idGroup, idTable, type }) {
         // createTask(task, idTable).then(res=>setRender(!render))
 
         // setOpenDialog('')
-        
-        addUserToGroup(user._id, idTable, idGroup, type).then(()=>setRender(!render))
+        console.log(type);
+        if (type === 'toTable') {
+            addUserToTable(user._id, idTable, idGroup, type).then(() => setRender(!render))
+        } else if (type = 'toGroup') {
+            addUserToGroup(user._id, idGroup, type).then(() => setRender(!render))
+        }
 
     }
 

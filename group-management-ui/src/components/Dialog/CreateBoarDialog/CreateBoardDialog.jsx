@@ -6,20 +6,12 @@ import styles from './createboarddialog.module.scss'
 
 
 function CreateBoardDialog() {
-
-
     const { openDialog, setOpenDialog, handleSubmit, listWork } = useContext(AppContext)
     let name = '';
     let id = '';
-
-
-
-
     return (
         <>
-
             {openDialog === 'board' && (
-
                 (<div className={styles.wrapper} id='dialog' >
                     <header className={styles.header}>
                         <span className={styles.title}>Tạo Bảng</span>

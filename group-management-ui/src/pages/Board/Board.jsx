@@ -4,27 +4,29 @@ import BoardCard from '../../components/BoardCard';
 import AddUserDialog from '../../components/Dialog/AddUserDialog';
 import CreateBoardDialog from '../../components/Dialog/CreateBoarDialog/CreateBoardDialog';
 import { AppContext } from '../../Context/AppContext';
+import { getTableInGroupById } from '../../hooks/requests';
 import styles from './board.module.scss'
 
 function Board() {
     const { openDialog, setOpenDialog, listWork, table, profile } = useContext(AppContext)
-    const[idGroup, setIdGroup] = useState('')
+    // const [board, setBoard] = useState([])
+    
+    const [idGroup, setIdGroup] = useState('')
     const stateTable = table.length > 0
-    // console.log('listWork);
 
-    // console.log(listWork);
     if (!stateTable) {
         return
     }
 
-    // console.log(render);
-    // const [table, setTable] = useState([])
-    // useEffect(() => {
-    //     return async () => {
-    //         setTable(await getTableInGroup())
-    //     }
-    // }, []);
-
+    // console.log(listWork);
+    const testFunction =  (id) => {
+        let board = []
+        let result =  getTableInGroupById(id)
+        console.log(result);
+    }
+    // listWork.map(work=>(
+    //     console.log(getTableInGroupById(work._id))
+    // ))
 
     return (
         <>
@@ -34,20 +36,21 @@ function Board() {
                         <div className={styles.wrapper_top}>
                             <h3 className={styles.title}> {work.name} </h3>
                             <div>
-                                {work.owner[0].userId === profile._id && <>
-                                    <div className={styles.wrapper_btn} onClick={() => {setOpenDialog('adduser'), setIdGroup(work._id)}}>
-                                        <span className={styles.btn_add_user}>
-                                            ({work.members.length}) Thêm thành viên
-                                        </span>
-                                    </div>
-                                    
-                                </>
+                                {
+                                    work.owner[0].userId === profile._id && <>
+                                        <div className={styles.wrapper_btn} onClick={() => { setOpenDialog('adduser'), setIdGroup(work._id) }}>
+                                            <span className={styles.btn_add_user}>
+                                                ({work.members.length}) Thêm thành viên
+                                            </span>
+                                        </div>
+                                    </>
                                 }
 
                             </div>
                         </div>
                         <div className={styles.body}>
                             {
+                                
                                 stateTable && table.map(board => {
                                     if (work._id == board.groupId) {
                                         return <BoardCard board={board} />

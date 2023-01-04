@@ -14,8 +14,9 @@ function Header() {
     const handleLogout = async () => {
 
         const result = await logoutRequest()
-        // console.log(result);
+        console.log(result);
         const success = result.ok
+
         if (success) {
             localStorage.removeItem('access_token')
             navigate('/login')

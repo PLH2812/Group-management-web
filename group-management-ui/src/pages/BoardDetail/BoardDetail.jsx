@@ -6,7 +6,7 @@ import CheckIcon from '@mui/icons-material/Check';
 import CloseIcon from '@mui/icons-material/Close';
 // import { List } from '@mui/icons-material';
 import { AppContext } from '../../Context/AppContext';
-import { submitTaskRequest, pickTaskRequest } from '../../hooks/requests';
+import { submitTaskRequest, pickTaskRequest, removeUser } from '../../hooks/requests';
 import CreateTask from '../../components/Dialog/CreateTask';
 import clsx from 'clsx'
 import AddUserDialog from '../../components/Dialog/AddUserDialog';
@@ -16,7 +16,6 @@ function BoardDetail() {
     const { boardSlug } = useParams()
     const { table, listWork, setOpenDialog, task, profile, getTableId, setRender, render } = useContext(AppContext)
     // const [task, setTask] = useState({})
-    // console.log(table);
     const stateWork = listWork.length > 0
     const stateTable = table.length > 0
     // console.log(ta   sk);
@@ -125,6 +124,11 @@ function BoardDetail() {
     //     arr[indexObj].isDisplay = !arr[indexObj].isDisplay
     // }
 
+    const deleteUser=(userId, groupId)=>{
+        console.log(userId, groupId);
+        removeUser(userId,groupId).then(()=>setRender(!render))
+    }
+
     return (
         // <></>
         <div className={styles.wrapper}>
@@ -152,10 +156,9 @@ function BoardDetail() {
                                                 <div className={styles.work}>
                                                     <span className={styles.title}>{task.name}</span>
                                                     <button className={styles.button_pick} title='Chọn task' onClick={() => getID(task._id, task.tableId)}>
-                                                        <MoreVertIcon />
-
+                                                        {/* <MoreVertIcon /> */}
                                                     </button>
-                                                    
+
                                                 </div>
                                             )
                                         }
@@ -179,8 +182,18 @@ function BoardDetail() {
                         <div className={styles.wrapper_card}>
                             <div className={styles.card}>
                                 <div className={styles.card_title}>
-                                    <span > {column.name}</span>
+                                    <span> {column.name}</span>
+                                    <span className={styles.select_option}>
+                                        <MoreVertIcon />
+                                        <div className={styles.option}>
+                                            <div className={styles.separa}></div>
+                                            <div className={styles.option_item} onClick={()=>deleteUser(column.userId, work1.groupId)}>Xóa thành viên</div>
+                                            <div className={styles.option_item}>Xem thông tin</div>
+                                        </div>
+                                    </span>
+
                                 </div>
+
                                 <div className={styles.card_list_work}>
                                     {
 

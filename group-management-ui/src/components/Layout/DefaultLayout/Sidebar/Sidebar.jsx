@@ -35,7 +35,7 @@ function Sidebar() {
     const [active, setActive] = useState(0)
     const url = window.location.pathname
     const { listWork, openDialog, setOpenDialog } = useContext(AppContext)
-
+    const stateWork = listWork.length > 0
     const handleActive = (workId) => {
         if (active == workId) {
             setActive(0)
@@ -75,8 +75,8 @@ function Sidebar() {
                         listWork?.map(work => (
                             <div className={styles.wrapperwork}>
                                 <div className={styles.workitem} onClick={() => handleActive(work._id)}>
-                                        <span className={styles.icon}>T</span>
-                                        <span className={styles.title}> {work.name}</span>
+                                    <span className={styles.icon}>T</span>
+                                    <span className={styles.title}> {work.name}</span>
 
                                     <span className={styles.arrow}>{active == work._id ? <IoIosArrowUp /> : <IoIosArrowDown />}</span>
                                 </div>
