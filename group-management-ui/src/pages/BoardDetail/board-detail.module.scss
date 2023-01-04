@@ -95,14 +95,15 @@
     max-width: 300px;
     
 
-    // .button_pick{
-    //     position: absolute;
-    //     right: 9px;
-    //     height: 32px;
-    //     width: 32px;
+    .button_pick{
+        height: 32px;
+        width: 32px;
+        display: block;
+        text-align: center;
+        line-height: 32px;
         
-    // }
-    .button_pick,
+    }
+    // .button_pick,
     .button_done,
     .button_cancel {
         position: absolute;
@@ -116,11 +117,10 @@
     }
 
     .button_pick {
-        background-image: url(../../assets/picking.png);
         background-color: transparent;
         border: 2px solid #639390;
-        // border: none;
-        // border-radius: 50%;
+        border: none;
+        border-radius: 50%;
     }
 
     .button_done {

@@ -11,104 +11,32 @@ import CreateTask from '../../components/Dialog/CreateTask';
 import clsx from 'clsx'
 import AddUserDialog from '../../components/Dialog/AddUserDialog';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
+import moment from 'moment';
+import TaskDetailDialog from '../../components/Dialog/TaskDetailDialog';
 
 function BoardDetail() {
     const { boardSlug } = useParams()
     const { table, listWork, setOpenDialog, task, profile, getTableId, setRender, render } = useContext(AppContext)
-    // const [task, setTask] = useState({})
+    
     const stateWork = listWork.length > 0
     const stateTable = table.length > 0
-    // console.log(ta   sk);
-    // useEffect(() => {
-    //     return async () => {
-    //         setTask(await getTask(work1._id))
-    //     }
-    // }, []);
-
-    // if(task.loading){
-    //     return <>helo</>
-    // }
+    
     if (!stateTable) {
         return
     }
     const work1 = table.find(element => element.url === boardSlug)
+    console.log(work1._id);
     getTableId(work1._id)
-    // console.log(work1);
+    const [taskDetail, setTaskDetail] = useState()
 
     if (!stateWork) {
         return
     }
-    // const work1 = table.find(element => element.url === boardSlug)
     const work2 = listWork.find(work => work._id === work1.groupId)
 
-    // console.log(task);
-    // console.log(work2.members);
-    // console.log(work1);
-    // setSlug(boardSlug)
-    // console.log(table.find(element=>element.url === boardSlug));
-    // const workBySlug = () => {
-    //     if (stateWork && stateTable) {
-    //         const work1 = table.find(element => element.url === boardSlug)
-    //         if (work1) {
-    //             const work2 = listWork.find(work => work._id === work1.groupId)
-    //             console.log(work2);
-    //             return work2
-    //         }
-    //     }
 
-    // }
-    // useEffect(() => {
 
-    //     const work1 = table.find(element => element.url === boardSlug)
-    //     const work2 = listWork.find(work => work._id === work1.groupId)
-
-    //     setData(work2)
-
-    // }, [])
-    // console.log(workBySlug()._id);
-
-    // if (data.loading === false) {
-    //     // setData({ loading: true })
-    // const work1 = table.find(element => element.url === boardSlug)
-    // const work2 = listWork.find(work => work._id === work1.groupId)
-    // console.log(work1);
-    // setData({
-    //     loading: true,
-    //     data: work2
-    // })
-
-    // }
-    // console.log(work);
-    // console.log(data);
-
-    // const [listWork, setListWork] = useState([])
-    // console.log(listWork);
-    // useEffect(() => {
-    //     return async () => {
-    //         setListWork(await getGroup())
-    //     }
-    // }, []);
-
-    const getID = async (taskID, tableID) => {
-        // taskList = taskList.filter(task => task.taskID !== taskID)
-        // console.log(taskList);
-        // let profile = await getProfileUser()
-        // console.log(profile);
-        // setDisplayTask(taskID, taskList)
-        // let gmail = localStorage.getItem('gmail');
-        // for (let i = 0; i < data.length; i++) {
-        //     if (profile.email === gmail) {
-        //         let index = taskList.findIndex((obj => obj.taskID == taskID))
-        //         if (data[i].task.includes(taskList[index])) {
-        //             data[i].task = data[i].task.filter(task => (task.taskID === taskID))
-        //         } else {
-        //             data[i].task.push(taskList[index])
-        //         }
-        //     }
-        // }
-        pickTaskRequest(taskID, tableID).then(res => setRender(!render))
-
-    }
+    
     const completeTask = (taskId) => {
         submitTaskRequest(taskId).then(res => setRender(!render))
     }
@@ -116,17 +44,13 @@ function BoardDetail() {
     const cancelTask = (taskID) => {
         console.log(taskID);
         setDisplayTask(taskID, taskList)
-        // setTask(1)
+  
     }
-    // const setDisplayTask = (taskID, arr) => {
-    //     setTask([...task, taskID])
-    //     let indexObj = arr.findIndex((obj => obj.taskID == taskID))
-    //     arr[indexObj].isDisplay = !arr[indexObj].isDisplay
-    // }
 
-    const deleteUser=(userId, groupId)=>{
+
+    const deleteUser = (userId, groupId) => {
         console.log(userId, groupId);
-        removeUser(userId,groupId).then(()=>setRender(!render))
+        removeUser(userId, groupId).then(() => setRender(!render))
     }
 
     return (
@@ -155,10 +79,15 @@ function BoardDetail() {
                                             return (
                                                 <div className={styles.work}>
                                                     <span className={styles.title}>{task.name}</span>
-                                                    <button className={styles.button_pick} title='Chọn task' onClick={() => getID(task._id, task.tableId)}>
-                                                        {/* <MoreVertIcon /> */}
-                                                    </button>
+                                                    <span className={styles.button_pick} title='Chọn task' onClick={() => {
 
+                                                        setOpenDialog('taskdetail')
+                                                        setTaskDetail(task)
+                                                    }
+                                                    }>
+                                                        <MoreVertIcon />
+                                                    </span>
+                                                    <TaskDetailDialog task={taskDetail} />
                                                 </div>
                                             )
                                         }
@@ -166,12 +95,13 @@ function BoardDetail() {
                                 }
                             </div>
 
+
                         </div>
 
                         <div >
                             <div className={styles.action_add} onClick={() => setOpenDialog('task')}>
                                 <span className={styles.icon}> <AiOutlinePlus /></span>
-                                <span className={styles.title} >Thêm thẻ</span>
+                                <span className={styles.title}>Thêm thẻ</span>
 
                             </div>
                         </div>
@@ -187,7 +117,7 @@ function BoardDetail() {
                                         <MoreVertIcon />
                                         <div className={styles.option}>
                                             <div className={styles.separa}></div>
-                                            <div className={styles.option_item} onClick={()=>deleteUser(column.userId, work1.groupId)}>Xóa thành viên</div>
+                                            <div className={styles.option_item} onClick={() => deleteUser(column.userId, work1.groupId)}>Xóa thành viên</div>
                                             <div className={styles.option_item}>Xem thông tin</div>
                                         </div>
                                     </span>
@@ -226,7 +156,7 @@ function BoardDetail() {
             </div>
             <CreateTask idTable={work1._id} setRender={() => setRender} />
             <AddUserDialog idGroup={work1.groupId} idTable={work1._id} type='toTable' />
-        </div>
+        </div >
     );
 }
 

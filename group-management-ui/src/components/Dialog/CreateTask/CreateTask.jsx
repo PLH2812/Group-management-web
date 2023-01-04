@@ -15,19 +15,20 @@ function CreateTask({idTable}) {
         // let profile = await getProfileUser()
         let name = document.getElementById('name-task').value;
         let description = document.getElementById('description').value;
+        let deadline = document.getElementById('deadline').value;
         let task = {
             name: name,
             assignedTo:{},
             description: description,
             startDate:Date.now(),
-            endDate:new Date(new Date().getTime()+(7*24*60*60*1000)),
+            endDate: deadline||new Date(new Date().getTime()+(7*24*60*60*1000)),
             tableId:idTable,
 
             
         }
 
         createTask(task, idTable).then(res=>setRender(!render))
-        
+        // console.log(task);
         setOpenDialog('')
     }
 
@@ -47,6 +48,7 @@ function CreateTask({idTable}) {
                     <hr />
                     <div className={styles.body}>
                         <input className={styles.name} id='name-task' type="text" placeholder='Nhập tên task' />
+                        <input className={styles.name} id='deadline' type="date" placeholder='Deadline' />
                         <textarea className={styles.name} id='description' rows='4' placeholder='Nội dung task' />
                     </div>
                     <div className={styles.action}>
