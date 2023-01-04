@@ -188,6 +188,9 @@ router.patch('/api/users/me/removeUser/:userId/fromGroup/:groupId', auth, async 
     if (!group){
       res.status(400).send({ error: "Bạn không phải chủ nhóm!"});
     } else {
+      if (req.user._id == req.params.user._id) {
+        return res.status(400).send({ message: "Bạn không thể xoá chủ nhóm ra khỏi nhóm!"}
+      )};
       const member = await User.findOne({_id: req.params['userId']});
       if (!member) {
         res.status(404).send({error: "Không tìm thấy người dùng này!"});
@@ -281,6 +284,9 @@ router.patch('/api/users/me/removeUser/:userId/fromTable/:tableId/:groupId', aut
     if (!group){
       res.status(400).send({ error: "Bạn không phải chủ nhóm!"});
     } else {
+      if (req.user._id == req.params.user._id) { 
+        return res.status(400).send({ message: "Bạn không thể xoá chủ nhóm ra khỏi nhóm!"}
+      )};
       const tableId = req.params['tableId'];
       const table = await Table.findOne({tableId});
       if (!table){
