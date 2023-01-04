@@ -483,14 +483,8 @@ router.get('/api/users/me/getTasks/fromTable/:tableId', auth, async (req, res) =
     if (!table){
       res.status(400).send({ error: "Table không tồn tại!"});
     } else {
-      const myTables = await Table.getMyOwnTables(req.user._id);
-      const isOwner = myTables.find(t => t.id === req.params['tableId']);
-      if (!isOwner){
-        res.status(404).send({error: 'Bạn không phải chủ nhóm!'})
-      } else {
-        const task = await Task.find({tableId: req.params['tableId']})
-        res.status(200).send({task})
-      }
+      const tasks = await Task.find({tableId: req.params['tableId']});
+      res.status(200).send({tasks});
     }
   } catch (error) {
     res.status(500).send({error: error.message});
