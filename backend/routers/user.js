@@ -36,7 +36,8 @@ router.post('/api/users/login', checkStatus, async(req, res) => {
         res
         .cookie("JWT", token, {
           httpOnly: true,
-          secure: process.env.PROJECT_STATUS !== "DEVELOPING"
+          secure: process.env.PROJECT_STATUS !== "DEVELOPING",
+          sameSite: 'lax'
         })
         .status(200)
         .send({message: 'Đăng nhập thành công'})
