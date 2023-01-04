@@ -252,7 +252,7 @@ router.get('/api/users/me/getTables/inGroup/:groupId', auth, async(req, res) =>{
 router.patch('/api/users/me/addUser/:userId/toTable/:tableId/:groupId', auth, async (req, res) => {
   try {
     const myGroups = await Group.getMyOwnGroups(req.user._id);
-    const group = myGroups.find(g => g.id === req.params['groupId']);
+    const group = myGroups.find(g => g.id == req.params['groupId']);
     if (!group){
       res.status(400).send({ error: "Bạn không phải chủ nhóm!"});
     } else {
@@ -260,8 +260,7 @@ router.patch('/api/users/me/addUser/:userId/toTable/:tableId/:groupId', auth, as
       if (!user) {
         res.status(404).send({error: 'Người dùng này không có trong nhóm'})
       } else {
-        const tableId = req.params['tableId'];
-        const table = await Table.findOne({tableId});
+        const table = await Table.findOne({_id: req.params['tableId']});
         if (!table){
           res.status(404).send({error: 'Bảng không tồn tại!'})
         } else {
