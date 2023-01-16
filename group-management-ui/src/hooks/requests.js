@@ -258,6 +258,19 @@ async function removeUser(userId,groupId) {
     }).then(res => res.json())
 }
 
+async function removeTask(taskId,tableId) {
+    return await fetch(`${API_URL}/users/me/deleteTask/${taskId}/fromTable/${tableId}`, {
+        method: 'DELETE',
+        credentials: 'include',
+        headers: {
+            "Content-Type": "application/json",
+            "Accept": 'application/json',
+            
+        },
+
+    }).then(res => res.json())
+}
+
 
 
 export {
@@ -280,5 +293,6 @@ export {
     pickTaskRequest,
     submitTaskRequest,
     getTableInGroupById,
-    removeUser
+    removeUser,
+    removeTask
 };

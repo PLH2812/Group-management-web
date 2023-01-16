@@ -2,7 +2,7 @@ import { useContext, useEffect, useState } from 'react';
 import { AppContext } from '../../../Context/AppContext';
 import BoardCard from '../../BoardCard';
 import styles from './createboarddialog.module.scss'
-import { pickTaskRequest } from '../../../hooks/requests'
+import { pickTaskRequest, removeTask } from '../../../hooks/requests'
 import moment from 'moment';
 
 
@@ -13,6 +13,14 @@ function TaskDetail({ task }) {
 
     const pickTask = (taskID, tableID) => {
         pickTaskRequest(taskID, tableID).then(res => {
+            setRender(!render)
+            setOpenDialog('')
+        }
+        )
+    }
+    const deleteTask = (taskID, tableID) => {
+        removeTask(taskID, tableID).then(res => {
+            alert(res.error||res.message)
             setRender(!render)
             setOpenDialog('')
         }
@@ -36,10 +44,12 @@ function TaskDetail({ task }) {
                     <div className={styles.body}>
                         <input className={styles.name} id='name-task' type="text" placeholder='Nhập tên task' value={task.name} />
                         <textarea className={styles.name} id='description' rows='4' placeholder='Nội dung task' value={task.description} />
+                        <input className={styles.name} id='status' type="text" placeholder='Nhập tên task' value={task.status} />
                         <input className={styles.name} id='deadline' type="text" placeholder='Nhập tên task' value={'Thời gian làm: ' + moment(task.endDate).fromNow()} />
                     </div>
                     <div className={styles.action}>
                         <button className={styles.submit} onClick={() => pickTask(task._id, task.tableId)} >Nhận task</button>
+                        <button className={styles.submit} onClick={() => deleteTask(task._id, task.tableId)} >Xóa task</button>
                     </div>
                 </div>)
 
