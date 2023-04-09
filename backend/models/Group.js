@@ -54,8 +54,6 @@ groupSchema.statics.getMyOwnGroups = async function(userId){
     return myGroups;
 }
 
-//TODO: delete task before delete group
-
 const Group = mongoose.model("Group", groupSchema);
 
 module.exports = Group;

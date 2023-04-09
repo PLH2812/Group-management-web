@@ -1,9 +1,9 @@
 const express = require("express");
-const Group = require("../models/Group");
-const User = require("../models/User");
-const Task = require("../models/Task");
-const Table = require("../models/Table");
-const requireRole = require("../middleware/auth").requireRole;
+const Group = require("../../models/Group");
+const User = require("../../models/User");
+const Task = require("../../models/Task");
+const Table = require("../../models/Table");
+const requireRole = require("../../middleware/auth").requireRole;
 
 const router = express.Router();
 
