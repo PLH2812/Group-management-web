@@ -1,7 +1,5 @@
 const express = require("express");
-const User = require("../../models/User");
 const auth = require("../../middleware/auth").auth;
-const checkStatus = require("../../middleware/checkUserStatus");
 const Group = require("../../models/Group");
 const Table = require("../../models/Table");
 const Task = require("../../models/Task");

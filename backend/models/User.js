@@ -33,6 +33,13 @@ const userSchema = mongoose.Schema({
     required: true,
     minLength: 7
   },
+  verifiedAt: { 
+    type: Date
+  },
+  otp:{
+    type: Number,
+    expires: 300
+  },
   tokens: [
     {
       token: {

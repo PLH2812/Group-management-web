@@ -1,16 +1,26 @@
 const express = require("express");
+const bcrypt = require("bcryptjs");
 const User = require("../../models/User");
 const auth = require("../../middleware/auth").auth;
 const checkStatus = require("../../middleware/checkUserStatus");
+const mailer = require('../../utils/sendMail');
 
 const router = express.Router();
 
-router.post("/api/users/register", async (req, res) => {
+  router.post("/api/users/register", async (req, res) => {
     // Create a new user
     try {
       const user = new User(req.body);
       const unavailable = await User.findOne({email: user.email});
       if (!unavailable){
+        // verification mail
+        bcrypt.hash(user._id, 8).then((hashedId) => {
+          mailer.sendMail(user.email, "Xác thực email",
+           `<h1>Bạn đã đăng ký tài khoản thành công! </br></h1>
+           <p>Vui lòng nhấp vào link phía dưới để xác thực email</p>
+           <a href="${process.env.APP_URL}/verification?token=${hashedId}&uid=${user._id}"> Xác thực email ngay!</a>`)
+        });
+        
         user.role = process.env.ROLE_USER;
         user.status = process.env.USER_STATUS_ACTIVE;
         await user.save();
@@ -23,6 +33,64 @@ router.post("/api/users/register", async (req, res) => {
     }
   });
   
+  router.post("api/users/verification/:uid/:hashedId", async(req, res) => {
+    try {
+      bcrypt.compare((req.params['uid'], req.params['hashedId']), (err, result) => {
+        if (result == true) {
+          const filter = {'_id': req.params['uid']};
+          const update = {'verifiedAt': Date.now()};
+          User.findOneAndUpdate(filter, update, () => {
+            if(!err) {
+              return res.status(200).send("Xác thực thành công!");
+            }
+            else 
+              return res.status(500).send(err.message);
+          }) 
+        }
+      })
+    } catch (error) {
+      res.status(400).send(error.message);
+    }
+  })
+
+  router.post("api/users/forgotPassword/:email", async (req, res) => {
+    try {
+      let user = await User.findOne({email: req.params['email']});
+      if (user) {
+        const otp = `${1000 + Math.floor(Math.random() * 9000)}`;
+        mailer.sendMail(req.params['email'], "Đặt lại mật khẩu",
+             `<h1>Mã otp đặt lại mật khẩu của bạn là:</h1>
+              <h2>${otp}</h2>`);
+        user.otp = otp;
+        await user.save();
+        return res.status(200).send("Đã gửi mã otp đặt lại mật khẩu, vui lòng kiểm tra email!");
+      }
+      else {
+        return res.status(404).send("Email không tồn tại, vui lòng đăng ký tài khoản!");
+      }
+    } catch (error) {
+      res.status(400).send(error.message);
+    }
+  });
+
+  router.post("api/users/resetPassword/:uid", async (req, res) => {
+    try {
+      const inputOtp = req.body.otp;
+      let user = await await User.findOne({_id: req.params['uid']});
+      if (user.otp === inputOtp) {
+        const newPassword = req.body.password;
+        
+        user.password = newPassword;
+        await user.save();
+        return res.status(200).send("Đặt lại mật khẩu thành công!");
+      }
+      else
+        return res.status(404).send("Otp không đúng, vui lòng thử lại sau!");
+    } catch (error) {
+      res.status(400).send(error.message);
+    }
+  })
+
   router.post('/api/users/login', checkStatus, async(req, res) => {
       //Login a registered user
       try {
