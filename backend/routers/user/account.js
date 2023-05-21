@@ -14,13 +14,13 @@ const router = express.Router();
       const unavailable = await User.findOne({email: user.email});
       if (!unavailable){
         // verification mail
-        bcrypt.hash(user._id, 8).then((hashedId) => {
-          mailer.sendMail(user.email, "Xác thực email",
-           `<h1>Bạn đã đăng ký tài khoản thành công! </br></h1>
-           <p>Vui lòng nhấp vào link phía dưới để xác thực email</p>
-           <a href="${process.env.APP_URL}/verification?token=${hashedId}&uid=${user._id}"> Xác thực email ngay!</a>`)
-        });
+        const otp = `${1000 + Math.floor(Math.random() * 9000)}`;
+        mailer.sendMail(user.email, "Xác thực email",
+         `<h1>Bạn đã đăng ký tài khoản thành công! </br></h1>
+         <p>Vui lòng nhập otp sau để xác thực email:
+         </br> ${otp}</p>`)
         
+        user.otp = otp;
         user.role = process.env.ROLE_USER;
         user.status = process.env.USER_STATUS_ACTIVE;
         await user.save();
@@ -33,27 +33,27 @@ const router = express.Router();
     }
   });
   
-  router.post("api/users/verification/:uid/:hashedId", async(req, res) => {
+  router.post("/api/users/verification/:uid", async(req, res) => {
     try {
-      bcrypt.compare((req.params['uid'], req.params['hashedId']), (err, result) => {
-        if (result == true) {
-          const filter = {'_id': req.params['uid']};
-          const update = {'verifiedAt': Date.now()};
-          User.findOneAndUpdate(filter, update, () => {
-            if(!err) {
+      let user = await User.findOne({'_id': req.params['uid']});
+      const inputOtp = req.body.otp;
+      if (inputOtp == user.otp) {
+        const filter = {'_id': req.params['uid']};
+        const update = {'verifiedAt': Date.now()};
+        User.findOneAndUpdate(filter, update, (err) => {
+          if(!err) {
               return res.status(200).send("Xác thực thành công!");
-            }
-            else 
-              return res.status(500).send(err.message);
-          }) 
-        }
-      })
+          }
+          else 
+            return res.status(500).send(err.message);
+        }) 
+      }
     } catch (error) {
       res.status(400).send(error.message);
     }
   })
 
-  router.post("api/users/forgotPassword/:email", async (req, res) => {
+  router.post("/api/users/forgotPassword/:email", async (req, res) => {
     try {
       let user = await User.findOne({email: req.params['email']});
       if (user) {
@@ -73,13 +73,12 @@ const router = express.Router();
     }
   });
 
-  router.post("api/users/resetPassword/:uid", async (req, res) => {
+  router.post("/api/users/resetPassword/:uid", async (req, res) => {
     try {
       const inputOtp = req.body.otp;
       let user = await await User.findOne({_id: req.params['uid']});
       if (user.otp === inputOtp) {
         const newPassword = req.body.password;
-        
         user.password = newPassword;
         await user.save();
         return res.status(200).send("Đặt lại mật khẩu thành công!");
