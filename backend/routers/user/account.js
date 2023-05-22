@@ -32,6 +32,27 @@ const router = express.Router();
       res.status(400).send(error);
     }
   });
+
+  router.post("/api/users/sendVerificationOtp/:email", async (req, res) => {
+    try {
+      const user = await User.findOne({email: user.email});
+      if (user){
+        const otp = `${1000 + Math.floor(Math.random() * 9000)}`;
+        mailer.sendMail(user.email, "Xác thực email",
+         `<h1>Bạn đã đăng ký tài khoản thành công! </br></h1>
+         <p>Vui lòng nhập otp sau để xác thực email:
+         </br> ${otp}</p>`)
+        
+        user.otp = otp;
+        await user.save();
+        res.status(200).send({message: "Đã gửi otp thành công!"});
+      } else {
+        res.status(400).send({error: 'Email không tồn tại!'});
+      }
+    } catch (error) {
+      res.status(400).send(error);
+    }
+  });
   
   router.post("/api/users/verification/:uid", async(req, res) => {
     try {
@@ -50,7 +71,7 @@ const router = express.Router();
         }) 
       }
       else 
-        res.status(404).send("Otp khôn đúng, vui lòng thử lại!")
+        res.status(404).send("Otp không đúng, vui lòng thử lại!")
     } catch (error) {
       res.status(400).send(error.message);
     }
@@ -76,19 +97,27 @@ const router = express.Router();
     }
   });
 
-  router.post("/api/users/resetPassword/:uid", async (req, res) => {
+  router.post("/api/users/checkOtp/:uid", async (req, res) => {
     try {
       const inputOtp = req.body.otp;
       let user = await User.findOne({_id: req.params['uid']});
       const otpCheck = await mailer.otpCheck(inputOtp, user.otp);
-      if (otpCheck === true) {
-        const newPassword = req.body.password;
-        user.password = newPassword;
-        await user.save();
-        return res.status(200).send("Đặt lại mật khẩu thành công!");
-      }
+      if (otpCheck === true) 
+        return res.status(200).send("Kiểm tra otp thành công!");
       else
         return res.status(404).send("Otp không đúng, vui lòng thử lại sau!");
+    } catch (error) {
+      res.status(400).send(error.message);
+    }
+  })
+
+  router.post("/api/users/resetPassword/:uid", async (req, res) => {
+    try {
+      let user = await User.findOne({_id: req.params['uid']});
+      const newPassword = req.body.password;
+      user.password = newPassword;
+      await user.save();
+      return res.status(200).send("Đặt lại mật khẩu thành công!");
     } catch (error) {
       res.status(400).send(error.message);
     }
@@ -99,7 +128,10 @@ const router = express.Router();
       try {
           const user = req.user;
           if (!user) {
-              return res.status(401).send({error: 'Đăng nhập thất bại!'});
+            return res.status(401).send({error: 'Đăng nhập thất bại!'});
+          }
+          if (user.verifiedAt == undefined) {
+            return res.status(401).send({error: 'Vui lòng xác thực email!'});
           }
           const token = await user.generateAuthToken();
           res
@@ -109,7 +141,11 @@ const router = express.Router();
             sameSite: 'lax'
           })
           .status(200)
-          .send({message: 'Đăng nhập thành công'})
+          .send({
+            message: 'Đăng nhập thành công',
+            _id: user._id,
+            email: user.email,
+            name: user.name})
       } catch (error) {
           res.status(400).send(error.message);
       }
