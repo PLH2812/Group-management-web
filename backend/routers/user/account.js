@@ -37,7 +37,8 @@ const router = express.Router();
     try {
       let user = await User.findOne({'_id': req.params['uid']});
       const inputOtp = req.body.otp;
-      if (inputOtp == user.otp) {
+      const otpCheck = await mailer.otpCheck(inputOtp, user.otp)
+      if (otpCheck === true) {
         const filter = {'_id': req.params['uid']};
         const update = {'verifiedAt': Date.now()};
         User.findOneAndUpdate(filter, update, (err) => {
@@ -48,6 +49,8 @@ const router = express.Router();
             return res.status(500).send(err.message);
         }) 
       }
+      else 
+        res.status(404).send("Otp khôn đúng, vui lòng thử lại!")
     } catch (error) {
       res.status(400).send(error.message);
     }
@@ -76,8 +79,9 @@ const router = express.Router();
   router.post("/api/users/resetPassword/:uid", async (req, res) => {
     try {
       const inputOtp = req.body.otp;
-      let user = await await User.findOne({_id: req.params['uid']});
-      if (user.otp === inputOtp) {
+      let user = await User.findOne({_id: req.params['uid']});
+      const otpCheck = await mailer.otpCheck(inputOtp, user.otp);
+      if (otpCheck === true) {
         const newPassword = req.body.password;
         user.password = newPassword;
         await user.save();

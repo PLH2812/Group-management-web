@@ -20,3 +20,10 @@ exports.sendMail = (to, subject, htmlContent) => {
     }
     return transport.sendMail(options);
 }
+
+exports.otpCheck = (inputOtp, userOtp) => {
+    if(inputOtp == userOtp)
+        return true;
+    else
+        return false;
+}
