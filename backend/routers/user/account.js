@@ -3,7 +3,6 @@ const errorHandler = require("../../middleware/errorHandler")
 const {tryCatch} = require("../../utils/tryCatch")
 const User = require("../../models/User");
 const auth = require("../../middleware/auth").auth;
-const checkStatus = require("../../middleware/checkUserStatus");
 const mailer = require('../../utils/sendMail');
 
 const router = express.Router();
