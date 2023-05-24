@@ -69,15 +69,19 @@ userSchema.methods.generateAuthToken = async function() {
 
 userSchema.statics.findByCredentials = async (email, password) => {
   // Search for a user by email and password
-  const user = await User.findOne({ email });
-  if (!user) {
-    throw new Error({ error: "Thông tin đăng nhập không hợp lệ" });
+  try {
+    const user = await User.findOne({ email });
+    if (!user) {
+      throw new Error({ error: "Thông tin đăng nhập không hợp lệ" });
+    }
+    const isPasswordMatch = await bcrypt.compare(password, user.password);
+    if (!isPasswordMatch) {
+      throw new Error({ error: "Thông tin đăng nhập không hợp lệ" });
+    }
+    return user;
+  } catch (error) {
+    return undefined;
   }
-  const isPasswordMatch = await bcrypt.compare(password, user.password);
-  if (!isPasswordMatch) {
-    throw new Error({ error: "Thông tin đăng nhập không hợp lệ" });
-  }
-  return user;
 };
 
 const User = mongoose.model("User", userSchema);

@@ -127,9 +127,6 @@ const router = express.Router();
       //Login a registered user
       try {
           const user = req.user;
-          if (!user) {
-            return res.status(401).send({error: 'Đăng nhập thất bại!'});
-          }
           if (user.verifiedAt == undefined) {
             return res.status(401).send({error: 'Vui lòng xác thực email!'});
           }
