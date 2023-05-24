@@ -4,10 +4,10 @@ const checkStatus = async(req, res, next) => {
     const { email, password } = req.body;
     const user = await User.findByCredentials(email, password);
     if (user == undefined) {
-        return res.status(401).send({error: 'Thông tin đăng nhập không hợp lệ!'});
+        throw new Error("Thông tin đăng nhập không hợp lệ");
     }
     if (user.status == process.env.USER_STATUS_DELETED)
-        res.status(401).send({ error: "Người dùng đã bị xoá!"})
+        throw new Error( "Người dùng đã bị xoá!");
     else
         req.user = user;
         next();

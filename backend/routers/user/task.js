@@ -1,11 +1,12 @@
 const express = require("express");
+const errorHandler = require("../../middleware/errorHandler")
 const auth = require("../../middleware/auth").auth;
 const Table = require("../../models/Table");
 const Task = require("../../models/Task");
 
 const router = express.Router();
 
-router.post('/api/users/me/createTask/fromTable/:tableId/', auth, async (req, res) => {
+router.post('/api/users/me/createTask/fromTable/:tableId/', auth, async (req, res, next) => {
   try {
     const tableId = req.params['tableId'];
     const table = await Table.findOne({tableId});
@@ -27,11 +28,11 @@ router.post('/api/users/me/createTask/fromTable/:tableId/', auth, async (req, re
       }
     }
   } catch (error) {
-    res.status(500).send({error: error.message});
+    next(error);
   }
 })
 
-router.delete('/api/users/me/deleteTask/:taskId/fromTable/:tableId/', auth, async (req, res) => {
+router.delete('/api/users/me/deleteTask/:taskId/fromTable/:tableId/', auth, async (req, res, next) => {
   try {
     const tableId = req.params['tableId'];
     const table = await Table.findOne({tableId});
@@ -55,11 +56,11 @@ router.delete('/api/users/me/deleteTask/:taskId/fromTable/:tableId/', auth, asyn
       }
     }
   } catch (error) {
-    res.status(500).send({error: error.message});
+    next(error);
   }
 })
 
-router.patch('/api/users/me/editTask/:taskId/fromTable/:tableId/', auth, async (req, res) => {
+router.patch('/api/users/me/editTask/:taskId/fromTable/:tableId/', auth, async (req, res, next) => {
   try {
     const tableId = req.params['tableId'];
     const table = await Table.findOne({tableId});
@@ -89,11 +90,11 @@ router.patch('/api/users/me/editTask/:taskId/fromTable/:tableId/', auth, async (
       }
     }
   } catch (error) {
-    res.status(500).send({error: error.message});
+    next(error);
   }
 })
 
-router.patch('/api/users/me/submitTask/:taskId/', auth, async(req, res) => {
+router.patch('/api/users/me/submitTask/:taskId/', auth, async(req, res, next) => {
   try {
     const task = await Task.findOne({_id: req.params['taskId']});
     const isMyTask = (task.assignedTo.userId == req.user._id);
@@ -111,11 +112,11 @@ router.patch('/api/users/me/submitTask/:taskId/', auth, async(req, res) => {
       
     }
   } catch (error) {
-    res.status(500).send({error: error.message});
+    next(error);
   }
 })
 
-router.patch('/api/users/me/pickTask/:taskId/fromTable/:tableId/', auth, async(req, res) => {
+router.patch('/api/users/me/pickTask/:taskId/fromTable/:tableId/', auth, async(req, res, next) => {
   try {
     const myTables = await Table.getMyTables(req.user._id);
     const table = myTables.find(t => t.id === req.params['tableId'])
@@ -136,11 +137,11 @@ router.patch('/api/users/me/pickTask/:taskId/fromTable/:tableId/', auth, async(r
       }
     }
   } catch (error) {
-    res.status(500).send({error: error.message});
+    next(error);
   }
 })
 
-router.get('/api/users/me/getTasks/fromTable/:tableId', auth, async (req, res) => {
+router.get('/api/users/me/getTasks/fromTable/:tableId', auth, async (req, res, next) => {
   try {
     const tableId = req.params['tableId'];
     const table = await Table.findOne({tableId});
@@ -151,11 +152,11 @@ router.get('/api/users/me/getTasks/fromTable/:tableId', auth, async (req, res) =
       res.status(200).send({tasks});
     }
   } catch (error) {
-    res.status(500).send({error: error.message});
+    next(error);
   }
 })
 
-router.get('/api/users/me/getTask/:taskId/fromTable/:tableId', auth, async (req, res) => {
+router.get('/api/users/me/getTask/:taskId/fromTable/:tableId', auth, async (req, res, next) => {
   try {
     const tableId = req.params['tableId'];
     const table = await Table.findOne({tableId});
@@ -175,30 +176,30 @@ router.get('/api/users/me/getTask/:taskId/fromTable/:tableId', auth, async (req,
       }
     }
   } catch (error) {
-    res.status(500).send({error: error.message});
+    next(error);
   }
 })
 
-router.get('/api/users/me/getMyTasks/', auth, async (req, res) => {
+router.get('/api/users/me/getMyTasks/', auth, async (req, res, next) => {
   try {
     const myTasks = await Task.getMyTasks(req.user._id);
     res.status(200).send({myTasks});
   } catch (error) {
-    res.status(500).send({error: error.message});
+    next(error);
   }
 })
 
-router.get('/api/users/me/getMyTask/:taskId', auth, async (req, res) => {
+router.get('/api/users/me/getMyTask/:taskId', auth, async (req, res, next) => {
   try {
       const myTasks = await Task.getMyTasks(req.user._id);
       myTasks = myTasks.filter((task) => {return task._id === req.params['taskId']});
       res.status(200).send({myTasks});
     } catch (error) {
-    res.status(500).send({error: error.message});
+    next(error);
   }
 })
 
-router.get('/api/users/me/getMyTasks/fromTable/:tableId', auth, async (req, res) => {
+router.get('/api/users/me/getMyTasks/fromTable/:tableId', auth, async (req, res, next) => {
   try {
     const tableId = req.params['tableId'];
     const table = await Table.findOne({tableId});
@@ -210,8 +211,10 @@ router.get('/api/users/me/getMyTasks/fromTable/:tableId', auth, async (req, res)
       res.status(200).send({myTasks});
     }
   } catch (error) {
-    res.status(500).send({error: error.message});
+    next(error);
   }
 })
+
+router.use(errorHandler);
 
 module.exports = router;

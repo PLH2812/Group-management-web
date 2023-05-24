@@ -1,4 +1,5 @@
 const express = require("express");
+const errorHandler = require("../../middleware/errorHandler")
 const User = require("../../models/User");
 const auth = require("../../middleware/auth").auth;
 const Group = require("../../models/Group");
@@ -43,7 +44,6 @@ router.get('/api/users/me/groups', auth, async(req, res) => {
             res.status(200).send({ message: "Xoá nhóm thành công!", deleted: group});
         }
         });
-        
       }
     } catch (error) {
       res.status(500).send({error: error.message});

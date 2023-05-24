@@ -1,4 +1,5 @@
 const express = require("express");
+const errorHandler = require("../../middleware/errorHandler")
 const auth = require("../../middleware/auth").auth;
 const Group = require("../../models/Group");
 const Table = require("../../models/Table");
@@ -6,7 +7,7 @@ const Task = require("../../models/Task");
 
 const router = express.Router();
 
-router.post('/api/users/me/createTable/inGroup/:groupId', auth, async (req, res) => {
+router.post('/api/users/me/createTable/inGroup/:groupId', auth, async (req, res, next) => {
     try {
       const myGroups = await Group.getMyOwnGroups(req.user._id);
       const group = myGroups.find(g => g.id === req.params['groupId']);
@@ -21,11 +22,11 @@ router.post('/api/users/me/createTable/inGroup/:groupId', auth, async (req, res)
         res.status(200).send({message: "tạo thành công!"})
       }
     } catch (error) {
-      res.status(500).send({error: error.message});
+      next(error);
     }
   })
   
-  router.get('/api/users/me/getTables/inGroup/:groupId', auth, async(req, res) =>{
+  router.get('/api/users/me/getTables/inGroup/:groupId', auth, async(req, res, next) =>{
     try {
         const group = await Group.findOne({_id: req.params['groupId']})
         const isInGroup = group.members.find(member => member.userId == req.user._id);
@@ -36,11 +37,11 @@ router.post('/api/users/me/createTable/inGroup/:groupId', auth, async (req, res)
           res.status(200).send(tables);
         }
     } catch (error) {
-      res.status(500).send({error: error.message});
+      next(error);
     }
   })
   
-  router.patch('/api/users/me/addUser/:userId/toTable/:tableId/:groupId', auth, async (req, res) => {
+  router.patch('/api/users/me/addUser/:userId/toTable/:tableId/:groupId', auth, async (req, res, next) => {
     try {
       const myGroups = await Group.getMyOwnGroups(req.user._id);
       const group = myGroups.find(g => g.id == req.params['groupId']);
@@ -63,11 +64,11 @@ router.post('/api/users/me/createTable/inGroup/:groupId', auth, async (req, res)
         }
       }
     } catch (error) {
-      res.status(500).send({error: error.message});
+      next(error);
     }
   })
   
-  router.patch('/api/users/me/removeUser/:userId/fromTable/:tableId/:groupId', auth, async (req, res) => {
+  router.patch('/api/users/me/removeUser/:userId/fromTable/:tableId/:groupId', auth, async (req, res, next) => {
     try {
       const myGroups = await Group.getMyOwnGroups(req.user._id);
       const group = myGroups.find(g => g.id === req.params['groupId']);
@@ -97,11 +98,11 @@ router.post('/api/users/me/createTable/inGroup/:groupId', auth, async (req, res)
         }
       }
     } catch (error) {
-      res.status(500).send({error: error.message});
+      next(error);
     }
   })
   
-  router.post('/api/users/me/giveTaskToUser/:userId/fromTable/:tableId/', auth, async (req, res) => {
+  router.post('/api/users/me/giveTaskToUser/:userId/fromTable/:tableId/', auth, async (req, res, next) => {
     try {
       const table = await Table.findOne({_id: req.params['tableId']});
       if (!table){
@@ -132,8 +133,10 @@ router.post('/api/users/me/createTable/inGroup/:groupId', auth, async (req, res)
         }
       }
     } catch (error) {
-      res.status(500).send({error: error.message});
+      next(error);
     }
   })
+
+  router.use(errorHandler);
 
   module.exports = router;

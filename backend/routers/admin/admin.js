@@ -1,4 +1,5 @@
 const express = require("express");
+const errorHandler = require("../../middleware/errorHandler")
 const Group = require("../../models/Group");
 const User = require("../../models/User");
 const Task = require("../../models/Task");
@@ -9,8 +10,6 @@ const router = express.Router();
 
 const adminRole = process.env.ROLE_ADMIN;
 
-/*--------------------------------------------------------------------------User Management Start--------------------------------------------------------------------------*/
-
 router.post("/api/admin/createUser", requireRole(adminRole), async (req, res) => {
     // Create a new user
     try {
@@ -18,7 +17,7 @@ router.post("/api/admin/createUser", requireRole(adminRole), async (req, res) =>
         await user.save();
     res.status(201).send(user);
     } catch (error) {
-        res.status(400).send(error);
+        next(error);
     }
 });
 
@@ -33,7 +32,7 @@ router.post("/api/admin/updateUser/:_id", requireRole(adminRole), async (req, re
         await data.save();
         res.send({message: "Sửa thành công!"});
     } catch (error) {
-        res.status(500).send(error);
+        next(error);
     }
 })
 
@@ -46,7 +45,7 @@ router.post("/api/admin/deleteUser/:_id", requireRole(adminRole), async (req, re
         await data.save();
         res.status(200).send({message:"Xoá thành công!"});
     } catch (error) {
-        res.status(500).send(error);
+        next(error);
     }
 })
 
@@ -58,7 +57,7 @@ router.get("/api/admin/getUser/:_id", requireRole(adminRole), async (req, res) =
         }
         res.status(200).send(data);
     } catch (error) {
-        res.status(500).send(error);
+        next(error);
     }
 })
 
@@ -67,20 +66,16 @@ router.get("/api/admin/getAllUsers", requireRole(adminRole), async (req, res) =>
         const data = await User.find();
         res.status(201).send(data);
     } catch (error) {
-           res.status(500).send(error);
+           next(error);
     }
 })
 
-/*--------------------------------------------------------------------------User Management Ends--------------------------------------------------------------------------*/
-
-
-/*--------------------------------------------------------------------------Group Management Starts--------------------------------------------------------------------------*/
 router.get("/api/admin/getAllGroups", requireRole(adminRole), async (req, res) =>{
     try {
         const data = await Group.find();
         res.status(200).send(data);
     } catch (error) {
-           res.status(500).send(error);
+           next(error);
     }
 })
 
@@ -92,7 +87,7 @@ router.get("api/admin/getGroup/:_id", requireRole(adminRole), async (req, res) =
         }
         res.status(200).send(data);
     } catch (error) {
-        res.status(500).send(error);
+        next(error);
     }
 })
 
@@ -102,7 +97,7 @@ router.post("/api/admin/createGroup", requireRole(adminRole), async (req, res) =
         group.save();
         res.status(200).send({ message: "Tạo nhóm thành công!"});
     } catch (error) {
-        res.status(500).send(error);
+        next(error);
     }
 })
 
@@ -118,7 +113,7 @@ router.post("/api/admin/updateGroup/:_id", requireRole(adminRole), async (req, r
         await data.save();
         res.status(200).send({message: "Sửa thành công!"});
     } catch (error) {
-        res.status(500).send(error);
+        next(error);
     }
 })
 
@@ -128,7 +123,7 @@ router.delete("/api/admin/deleteGroup/:_id", requireRole(adminRole), async (req,
         group = Group.findByIdAndDelete(req.params['_id']);
         res.status(200).send({ message: "Xoá nhóm thành công!"});
     } catch (error) {
-        res.status(500).send(error);
+        next(error);
     }
 })
 
@@ -147,7 +142,7 @@ router.delete("/api/admin/deleteGroup/:_id", requireRole(adminRole), async (req,
             res.status(200).send({message: "Đã xoá người dùng khỏi nhóm!"});
         }
     } catch (error) {
-        res.status(500).send(error);
+        next(error);
     }
  })
 
@@ -156,7 +151,7 @@ router.delete("/api/admin/deleteGroup/:_id", requireRole(adminRole), async (req,
       const tasks = await Task.find();
       res.status(200).send(tasks);
     } catch (error) {
-      res.status(500).send({error: error.message});
+        next(error);
     }
   })
   
@@ -165,8 +160,10 @@ router.delete("/api/admin/deleteGroup/:_id", requireRole(adminRole), async (req,
       const tables = await Table.find();
       res.status(200).send(tables);
     } catch (error) {
-      res.status(500).send({error: error.message});
+        next(error);
     }
   })
+
+router.use(errorHandler);
 
 module.exports = router;
