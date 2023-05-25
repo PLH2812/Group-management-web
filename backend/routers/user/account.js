@@ -4,6 +4,7 @@ const {tryCatch} = require("../../utils/tryCatch")
 const User = require("../../models/User");
 const auth = require("../../middleware/auth").auth;
 const mailer = require('../../utils/sendMail');
+const uploadFile = require('../../middleware/upload');
 
 const router = express.Router();
 
@@ -162,6 +163,28 @@ const router = express.Router();
       await user.save();
       res.status(200).send({ message: "Cập nhật thành cồng!"});
   }))
+
+  router.post('/api/users/upload', auth,  async(req, res, next) => {
+    try {
+      await uploadFile(req, res);
+
+      if (req.file == undefined){
+        throw new Error("Hãy gửi lên một file!")
+      }
+
+      res.status(200).send({
+        message: "Uploaded the file successfully: " + req.file.originalname,
+      });
+    }
+    catch (error){
+      if (error.code == "LIMIT_FILE_SIZE") {
+        return res.status(500).send(
+          "File không được lớn hơn 2MB!"
+        );
+      }
+      next(error);
+    }
+  })
   
   router.post("/api/users/me/logout", auth, tryCatch (async (req, res) => {
       // Log user out of the application
