@@ -59,7 +59,7 @@ router.post('/api/users/me/createTable/inGroup/:groupId', auth, async (req, res,
             const memberInfo = ({userId: user.userId, name: user.name});
             table.members = table.members.concat(memberInfo);
             table.save();
-            res.status(200).send({message: 'thêm thành công!'})
+            res.status(200).send({message: 'Thêm thành công!'})
           }
         }
       }

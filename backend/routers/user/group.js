@@ -1,4 +1,5 @@
 const express = require("express");
+const mailer = require('../../utils/sendMail');
 const errorHandler = require("../../middleware/errorHandler")
 const User = require("../../models/User");
 const auth = require("../../middleware/auth").auth;
@@ -7,6 +8,17 @@ const Table = require("../../models/Table");
 const Task = require("../../models/Task");
 
 const router = express.Router();
+
+
+const isGroupOwner = async(uid, groupId) => {
+  const id = mongoose.Types.ObjectId(groupId)
+  const user = await Group.findOne(id,
+  {
+    "owner": { "$elemMatch": { "userId": uid } }
+  }).exec();
+  if(user.members.length === 0) return false;
+  return true;
+}
 
 router.get('/api/users/me/groups', auth, async(req, res, next) => {
     try {
@@ -50,26 +62,38 @@ router.get('/api/users/me/groups', auth, async(req, res, next) => {
     }
   })
   
+  router.post("/api/users/sendInvitationMail/:uid/:groupId", auth, async(req, res, next) => {
+    try {
+      const groupId = req.params.groupId;
+      const group = await Group.findById(req.params.groupId);
+      const groupName = group.name;
+      const uid = req.params.uid;
+      const user = await User.findById(uid)
+      const isOwner = await isGroupOwner(req.user._id, groupId);
+      if(!isOwner) {throw new Error("Bạn không phải chủ nhóm!")}
+      mailer.sendMail(user.email, "Lời mời vào nhóm!",
+       `<h1>Bạn đã được mời vào nhóm ${groupName}! </br></h1>
+       <a href="${process.env.APP_URL}/invitation?uid=${uid}&&groupId=${groupId}">Nhấn vào đây để chấp nhận</a>`)
+    } catch (error) {
+      next(error);
+    }
+  })
+
   router.patch('/api/users/me/addUser/:userId/toGroup/:groupId', auth, async (req, res, next) => {
     try {
-      const myGroups = await Group.getMyOwnGroups(req.user._id);
-      const group = myGroups.find(g => g.id === req.params['groupId']);
-      if (!group){
-        res.status(400).send({ error: "Bạn không phải chủ nhóm!"});
+      const group = Group.findById(req.params['groupId']);
+      const member = await User.findOne({_id: req.params['userId']});
+      if (!member) {
+        res.status(404).send({error: "Không tìm thấy người dùng này!"});
       } else {
-        const member = await User.findOne({_id: req.params['userId']});
-        if (!member) {
-          res.status(404).send({error: "Không tìm thấy người dùng này!"});
-        } else {
-          const memberInfo = ({userId: member._id, name: member.name});
-          const existed = group.members.find(member => member.userId == req.params['userId']);
+        const memberInfo = ({userId: member._id, name: member.name});
+        const existed = group.members.find(member => member.userId == req.params['userId']);
           
-          if (!existed){
-            group.members = group.members.concat(memberInfo);
-            group.save();
-            res.status(200).send({message: "Thêm thành công!"});
-          } else {res.status(400).send({message: "Người dùng đã ở trong nhóm!"})}
-        }
+        if (!existed){
+          group.members = group.members.concat(memberInfo);
+          group.save();
+          res.status(200).send({message: "Thêm thành công!"});
+        } else {res.status(400).send({message: "Người dùng đã ở trong nhóm!"})}
       }
     } catch (error) {
       next(error);
