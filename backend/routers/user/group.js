@@ -8,16 +8,16 @@ const Task = require("../../models/Task");
 
 const router = express.Router();
 
-router.get('/api/users/me/groups', auth, async(req, res) => {
+router.get('/api/users/me/groups', auth, async(req, res, next) => {
     try {
       const myGroups = await Group.getMyGroups(req.user._id);
       res.status(200).send(myGroups);
     } catch (error) {
-      res.status(500).send(error);
+      next(error);
     }
   })
   
-  router.post('/api/users/me/createGroup', auth, async (req, res) => {
+  router.post('/api/users/me/createGroup', auth, async (req, res, next) => {
     try {
       const ownerInfo = ({userId: req.user._id, name: req.user.name});
       req.body.owner = ownerInfo;
@@ -25,11 +25,11 @@ router.get('/api/users/me/groups', auth, async(req, res) => {
       group.save();
       res.status(200).send({ message: "Tạo nhóm thành công!"});
     } catch (error) {
-      res.status(500).send({error: error.message});
+      next(error);
     }
   })
   
-  router.delete('/api/users/me/deleteGroup/:_id', auth, async (req, res) => {
+  router.delete('/api/users/me/deleteGroup/:_id', auth, async (req, res, next) => {
     try {
       let myGroups = await Group.getMyOwnGroups(req.user._id);
       let group = myGroups.find(g => g.id === req.params['_id']);
@@ -46,11 +46,11 @@ router.get('/api/users/me/groups', auth, async(req, res) => {
         });
       }
     } catch (error) {
-      res.status(500).send({error: error.message});
+      next(error);
     }
   })
   
-  router.patch('/api/users/me/addUser/:userId/toGroup/:groupId', auth, async (req, res) => {
+  router.patch('/api/users/me/addUser/:userId/toGroup/:groupId', auth, async (req, res, next) => {
     try {
       const myGroups = await Group.getMyOwnGroups(req.user._id);
       const group = myGroups.find(g => g.id === req.params['groupId']);
@@ -72,11 +72,11 @@ router.get('/api/users/me/groups', auth, async(req, res) => {
         }
       }
     } catch (error) {
-      res.status(500).send({error: error.message});
+      next(error);
     }
   })
   
-  router.patch('/api/users/me/removeUser/:userId/fromGroup/:groupId', auth, async (req, res) => {
+  router.patch('/api/users/me/removeUser/:userId/fromGroup/:groupId', auth, async (req, res, next) => {
     try {
       const myGroups = await Group.getMyOwnGroups(req.user._id);
       const group = myGroups.find(g => g.id === req.params['groupId']);
@@ -106,8 +106,10 @@ router.get('/api/users/me/groups', auth, async(req, res) => {
         }
       }
     } catch (error) {
-      res.status(500).send({error: error.message});
+      next(error);
     }
   })
+
+  router.use(errorHandler)
 
   module.exports = router;

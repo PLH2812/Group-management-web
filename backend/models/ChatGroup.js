@@ -1,25 +1,26 @@
 const mongoose = require("mongoose");
 
-const groupSchema = mongoose.Schema({
+const chatGroupSchema = mongoose.Schema({
+    name:{
+        type: String
+    },
+    description:{
+        type: String
+    },
     messages:[
         {
-            messageInfo: {
-               type: String,
-                required: true
+            messageContent: {
+               type: String
             },
             createdDate: {
               type: Date,
                default: Date.now()
             },
             senderId:{
-                type: String,
-                required: true
+                type: String
             }
         }
     ],
-    groupId: {
-        type: String
-    },
     members: [
         {
             userId: {
@@ -30,14 +31,25 @@ const groupSchema = mongoose.Schema({
                 type: String,
                 required: true
             },
+            isOwner:{
+                type: Boolean
+            },
             joinedDate: {
                 type: Date,
                 default: Date.now()
             }
         }
-    ]
+    ],
+    createdDate:{
+        type: Date,
+        default: Date.now()
+    },
+    total_messages:{
+        type: Number,
+        default: 0
+    }
 });
 
-const Group = mongoose.model("Group", groupSchema);
+const ChatGroup = mongoose.model("ChatGroup", chatGroupSchema);
 
-module.exports = Group;
+module.exports = ChatGroup;

@@ -28,6 +28,15 @@ const userSchema = mongoose.Schema({
       }
     }
   },
+  phone: {
+    type: String
+  },
+  gender: {
+    type: String
+  },
+  dateOfBirth: {
+    type: Date
+  },
   password: {
     type: String,
     required: true,
@@ -38,7 +47,7 @@ const userSchema = mongoose.Schema({
   },
   otp:{
     type: Number,
-    expires: 300
+    expiredAt: {type: Date, default: Date.now(), expires: 300}
   },
   tokens: [
     {
