@@ -42,9 +42,9 @@ const groupSchema = mongoose.Schema({
 
 groupSchema.statics.getMyGroups = async function(userId){
     const myGroups = await Group.find(
-    {
-      "owner": { "$elemMatch": { "userId": userId }},
-      "members": {"$elemMatch": {"userId": userId}}
+    { $or: 
+        [{"owner": { "$elemMatch": { "userId": userId }}}, 
+        {"members": {"$elemMatch": {"userId": userId}}}]
     }).exec();
     if(!myGroups)
         return {message: "Bạn chưa có nhóm!"};
