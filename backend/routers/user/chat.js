@@ -32,10 +32,24 @@ const isChatSender = async (uid, groupId, chatId) => {
   const user = await ChatGroup.findOne(id,
   {
     "messages": { "$elemMatch": { "_id": chatId, "senderId": uid } }
-  })
+  }).exec();
   if (user.messages.length === 0) return false;
   return true;
 }
+
+
+router.get("/api/users/getMyChatGroups", auth, async (req, res, next) => {
+  try {
+    const uid = req.user._id;
+    const myChatGroups = await ChatGroup.find({
+      "members": {"$elemMatch": {"userId": uid}}
+    }).exec();
+    if (myChatGroups.length === 0) {return res.status(200).send("Bạn hiện không ở trong nhóm chat nào cả!")}
+    return res.status(200).send(myChatGroups);
+  } catch (error) {
+    next(error);
+  }
+})
 
 router.post("/api/users/createChatGroup", auth, async (req, res, next) => {
     try {
