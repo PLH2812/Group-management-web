@@ -152,11 +152,15 @@ const router = express.Router();
   
   router.patch('/api/users/me', auth, tryCatch (async(req, res) => {
       // Update user profile
-        const data = req.body;
-        req.user.email = data.email;
-        req.user.name = data.name;
-        await req.user.save();
-        res.status(200).send({ message: "Cập nhật thành cồng!"});
+      const user = await User.findOne(req.user._id);
+      user.update({
+        name: req.body.name,
+        email: req.body.email,
+        phone: req.body.phone,
+        dateOfBirth: req.body.dateOfBirth
+      })
+      await user.save();
+      res.status(200).send({ message: "Cập nhật thành cồng!"});
   }))
   
   router.post("/api/users/me/logout", auth, tryCatch (async (req, res) => {
