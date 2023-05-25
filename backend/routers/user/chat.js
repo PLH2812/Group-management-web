@@ -108,7 +108,18 @@ router.patch("/api/users/removeMember/:chatGroupId/:memberId", auth, async (req,
       }}
     });
     chatGroup.save();
-    return res.status(200).send("Xoá thành công!");
+    return res.status(200).send("Xoá thành công!"); 
+  } catch (error) {
+    next(error);
+  }
+})
+
+router.get("/api/users/getChatMembers/:chatGroupId", auth, async (req, res, next) => {
+  try {
+    const chatGroupId = req.params.chatGroupId;
+    const chatGroup = await ChatGroup.findById(chatGroupId);
+    const members = chatGroup.members;
+    return res.status(200).send(members); 
   } catch (error) {
     next(error);
   }
