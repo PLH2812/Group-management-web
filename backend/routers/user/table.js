@@ -1,5 +1,6 @@
 const express = require("express");
 const errorHandler = require("../../middleware/errorHandler")
+const { default: mongoose } = require("mongoose");
 const auth = require("../../middleware/auth").auth;
 const Group = require("../../models/Group");
 const Table = require("../../models/Table");
@@ -26,17 +27,20 @@ router.post('/api/users/me/createTable/inGroup/:groupId', auth, async (req, res,
     }
   })
   
-  router.get('/api/users/me/getTables/inGroup/:groupId', auth, async(req, res, next) =>{
+  router.get('/api/users/me/getTables/inGroup/:groupId/', auth, async(req, res, next) =>{
     try {
-        const userId = req.user._id;
-        const groupId = req.params.groupId;
-        const isInGroup = await Group.find({_id: groupId},
-          { $or: 
-              [{"owner": { "$elemMatch": { "userId": userId }}}, 
-              {"members": {"$elemMatch": {"userId": userId}}}]
+        const uid = req.user._id;
+        const groupId = mongoose.Types.ObjectId(req.params['groupId'])
+        const isInGroup = await Group.findOne(groupId,
+          {
+            "members": { "$elemMatch": { "userId": uid } }
           }).exec();
-        if (isInGroup.owner.length === 0 || isInGroup.members.length === 0){
-          throw new Error("Bạn không ở trong nhóm này!")
+        const isOwner = await Group.findOne(groupId,
+          {
+            "owner": {"$elemMatch": {"userId": uid}}
+          }).exec();
+        if (isInGroup.members.length === 0 && isOwner.owner.length === 0){
+          res.status(400).send({ message: "Bạn không ở trong group này!"})
         } else {
           const tables = await Table.find({"groupId": req.params['groupId']})
           res.status(200).send(tables);
