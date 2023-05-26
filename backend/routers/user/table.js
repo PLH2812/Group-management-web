@@ -28,10 +28,15 @@ router.post('/api/users/me/createTable/inGroup/:groupId', auth, async (req, res,
   
   router.get('/api/users/me/getTables/inGroup/:groupId', auth, async(req, res, next) =>{
     try {
-        const group = await Group.findOne({_id: req.params['groupId']})
-        const isInGroup = group.members.find(member => member.userId == req.user._id);
-        if (!isInGroup){
-          res.status(400).send({ message: "Bạn không ở trong group này!"})
+        const userId = req.user._id;
+        const groupId = req.params.groupId;
+        const isInGroup = await Group.find({_id: groupId},
+          { $or: 
+              [{"owner": { "$elemMatch": { "userId": userId }}}, 
+              {"members": {"$elemMatch": {"userId": userId}}}]
+          }).exec();
+        if (isInGroup.owner.length === 0 || isInGroup.members.length === 0){
+          throw new Error("Bạn không ở trong nhóm này!")
         } else {
           const tables = await Table.find({"groupId": req.params['groupId']})
           res.status(200).send(tables);
