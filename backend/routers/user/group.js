@@ -74,7 +74,8 @@ router.get('/api/users/me/groups', auth, async(req, res, next) => {
       if(!isOwner) {throw new Error("Bạn không phải chủ nhóm!")}
       mailer.sendMail(user.email, "Lời mời vào nhóm!",
        `<h1>Bạn đã được mời vào nhóm ${groupName}! </br></h1>
-       <a href="${process.env.APP_URL}/invitation?uid=${uid}&&groupId=${groupId}">Nhấn vào đây để chấp nhận</a>`)
+       <a href="${process.env.APP_URL}/invitation?uid=${uid}&&groupId=${groupId}">Nhấn vào đây để chấp nhận</a>`);
+      return res.status(200).send("Gửi thành cồng!");
     } catch (error) {
       next(error);
     }
