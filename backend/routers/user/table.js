@@ -31,15 +31,16 @@ router.post('/api/users/me/createTable/inGroup/:groupId', auth, async (req, res,
     try {
         const uid = req.user._id;
         const groupId = mongoose.Types.ObjectId(req.params['groupId'])
-        const isInGroup = await Group.findOne(groupId,
+        const checkMember = await Group.findOne(groupId,
           {
             "members": { "$elemMatch": { "userId": uid } }
           }).exec();
-        const isOwner = await Group.findOne(groupId,
+        const checkOwner = await Group.findOne(groupId,
           {
             "owner": {"$elemMatch": {"userId": uid}}
           }).exec();
-        if (isInGroup.members.length === 0 && isOwner.owner.length === 0){
+        const isInGroup = ((checkMember.members.length > 0) || (checkOwner.owner.length > 0))
+        if (!isInGroup) {
           res.status(400).send({ message: "Bạn không ở trong group này!"})
         } else {
           const tables = await Table.find({"groupId": req.params['groupId']})

@@ -89,9 +89,17 @@ router.get('/api/users/me/groups', auth, async(req, res, next) => {
         res.status(404).send({error: "Không tìm thấy người dùng này!"});
       } else {
         const memberInfo = ({userId: member._id, name: member.name});
-        const existed = group.members.find(member => member.userId == req.params['userId']);
+        const checkMember = await Group.findOne(groupId,
+          {
+            "members": { "$elemMatch": { "userId": uid } }
+          }).exec();
+        const checkOwner = await Group.findOne(groupId,
+          {
+            "owner": {"$elemMatch": {"userId": uid}}
+          }).exec();
+        const isInGroup = ((checkMember.members.length > 0) || (checkOwner.owner.length > 0))
           
-        if (!existed){
+        if (!isInGroup){
           group.members = group.members.concat(memberInfo);
           group.save();
           res.status(200).send({message: "Thêm thành công!"});
