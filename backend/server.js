@@ -1,6 +1,7 @@
 const express = require("express");
 const cookieParser = require("cookie-parser");
 const rootRouter = require("./middleware/rootRouter");
+const cors = require("cors");
 const port = process.env.PORT;
 require("./db/db");
 
@@ -12,7 +13,7 @@ app.use(rootRouter);
 
 app.use(cors({
   credentials: true,
-  origin: process.env.APP_URL;
+  origin: process.env.APP_URL
 }))
 
 app.listen(port, () => {
