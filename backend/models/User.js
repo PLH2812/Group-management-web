@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 const validator = require("validator");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const searchable = require('mongoose-regex-search');
 
 const userSchema = mongoose.Schema({
   name: {
@@ -19,6 +20,7 @@ const userSchema = mongoose.Schema({
   },
   email: {
     type: String,
+    searchable: true,
     required: true,
     unique: true,
     lowercase: true,
@@ -58,6 +60,8 @@ const userSchema = mongoose.Schema({
     }
   ]
 });
+
+userSchema.plugin(searchable);
 
 userSchema.pre("save", async function(next) {
   // Hash the password before saving

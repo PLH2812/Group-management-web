@@ -127,18 +127,22 @@ const router = express.Router();
         name: user.name})
   }));
   
-  router.get('/api/users/getUser/:userEmail', tryCatch (async(req,res) => {
-      const user = await User.findOne({email: req.params['userEmail']});
-      if (!user) {
-        throw new Error({error: 'Không tìm thấy kết quả nào!'});
-      }
-      else {
-        res.status(200).send({
-          _id: user._id,
-          email: user.email,
-          name: user.name
-        })
-      }
+  router.get('/api/users/getUser/:userEmail', tryCatch (async(req,res,next) => {
+      const userEmail = req.params.userEmail;
+      const users = await User.search(userEmail)
+        if (users.length === 0) {
+          res.status(400).send("Không tìm thấy kết quả nào!");
+        }
+        else {
+          users.forEach(user => {
+            res.status(200).send({
+              _id: user._id,
+              name: user.name,
+              email: user.email,
+            });
+          });
+          
+        }
   }))
   
   router.get('/api/users/me', auth, tryCatch (async(req, res) => {
