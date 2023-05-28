@@ -102,8 +102,11 @@ router.get('/api/users/me/groups', auth, async(req, res, next) => {
         const isInGroup = ((checkMember.members.length > 0) || (checkOwner.owner.length > 0))
           
         if (!isInGroup){
-          group.members = group.members.concat(memberInfo);
-          group.save();
+          const update = await Group.findByIdAndUpdate(groupId,{
+            $push: {
+              members: memberInfo
+            }});
+          update.save();
           res.status(200).send({message: "Thêm thành công!"});
         } else {res.status(400).send({message: "Người dùng đã ở trong nhóm!"})}
       }
