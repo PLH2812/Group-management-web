@@ -17,7 +17,7 @@ const isGroupOwner = async(uid, groupId) => {
   {
     "owner": { "$elemMatch": { "userId": uid } }
   }).exec();
-  if(user.members.length === 0) return false;
+  if(user.owner.length === 0) return false;
   return true;
 }
 
