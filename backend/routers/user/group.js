@@ -83,7 +83,6 @@ router.get('/api/users/me/groups', auth, async(req, res, next) => {
 
   router.patch('/api/users/me/addUser/:userId/toGroup/:groupId', auth, async (req, res, next) => {
     try {
-      const group = Group.findById(req.params['groupId']);
       const member = await User.findOne({_id: req.params['userId']});
       if (!member) {
         res.status(404).send({error: "Không tìm thấy người dùng này!"});

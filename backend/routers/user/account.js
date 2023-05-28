@@ -24,7 +24,7 @@ const router = express.Router();
       user.role = process.env.ROLE_USER;
       user.status = process.env.USER_STATUS_ACTIVE;
       await user.save();
-      throw new Error("Đăng ký thành công!");
+      return res.status(200).send("Đăng ký thành công!");
     } else {
       throw new Error("Người dùng đã tồn tại!");
     }
@@ -41,7 +41,7 @@ const router = express.Router();
         
         user.otp = otp;
         await user.save();
-        throw new Error({message: "Đã gửi otp thành công!"});
+        return res.status(200).send("Đã gửi otp thành công!");
       } else {
         throw new Error({error: 'Email không tồn tại!'});
       }
@@ -177,7 +177,7 @@ const router = express.Router();
       }
 
       res.status(200).send({
-        message: "Uploaded the file successfully: " + req.file.originalname,
+        message: "Upload thành công file: " + req.file.originalname,
       });
     }
     catch (error){
