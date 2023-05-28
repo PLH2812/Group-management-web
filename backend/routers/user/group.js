@@ -1,5 +1,6 @@
 const express = require("express");
 const mailer = require('../../utils/sendMail');
+const { default: mongoose } = require("mongoose");
 const errorHandler = require("../../middleware/errorHandler")
 const User = require("../../models/User");
 const auth = require("../../middleware/auth").auth;
