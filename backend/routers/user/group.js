@@ -88,6 +88,7 @@ router.get('/api/users/me/groups', auth, async(req, res, next) => {
       if (!member) {
         res.status(404).send({error: "Không tìm thấy người dùng này!"});
       } else {
+        const groupId = req.params.groupId;
         const memberInfo = ({userId: member._id, name: member.name});
         const checkMember = await Group.findOne(groupId,
           {
