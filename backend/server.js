@@ -7,14 +7,16 @@ require("./db/db");
 
 const app = express();
 
-app.use(express.json());
-app.use(cookieParser());
-app.use(rootRouter);
-
 app.use(cors({
   credentials: true,
   origin: process.env.APP_URL
 }))
+
+app.use(express.json());
+app.use(cookieParser());
+app.use(rootRouter);
+
+
 
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);
