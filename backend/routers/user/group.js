@@ -7,6 +7,7 @@ const auth = require("../../middleware/auth").auth;
 const Group = require("../../models/Group");
 const Table = require("../../models/Table");
 const Task = require("../../models/Task");
+const { tryCatch } = require("../../utils/tryCatch");
 
 const router = express.Router();
 
@@ -147,6 +148,14 @@ router.get('/api/users/me/groups', auth, async(req, res, next) => {
       next(error);
     }
   })
+
+  router.get('/api/users/me/getMembers/fromGroup/:groupId', auth, tryCatch(async(req,res) => {
+    const groupId = mongoose.Types.ObjectId(req.params['groupId'])
+    const group = await Group.findOne(groupId);
+    if (!group) {throw new Error('Nhóm không tồn tại!')};
+    const result = {members: group.members, owner: group.owner};
+    return res.status(200).send(result);
+  }))
 
   router.use(errorHandler)
 

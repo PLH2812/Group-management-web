@@ -5,6 +5,7 @@ const auth = require("../../middleware/auth").auth;
 const Group = require("../../models/Group");
 const Table = require("../../models/Table");
 const Task = require("../../models/Task");
+const { tryCatch } = require("../../utils/tryCatch");
 
 const router = express.Router();
 
@@ -146,6 +147,14 @@ router.post('/api/users/me/createTable/inGroup/:groupId', auth, async (req, res,
       next(error);
     }
   })
+
+  router.get('/api/users/me/getMembers/fromTable/:tableId', auth, tryCatch(async(req,res) => {
+    const tableId = mongoose.Types.ObjectId(req.params['tableId'])
+    const table = await Table.findOne(tableId);
+    if (!table) {throw new Error('Table không tồn tại!')};
+    const result = {members: table.members, owner: table.owner};
+    return res.status(200).send(result);
+  }))
 
   router.use(errorHandler);
 
