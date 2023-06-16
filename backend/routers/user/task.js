@@ -44,7 +44,7 @@ router.delete('/api/users/me/deleteTask/:taskId/fromTable/:tableId/', auth, asyn
       if (!isOwner){
         res.status(404).send({error: 'Bạn không phải chủ nhóm!'})
       } else {
-        const task = await Task.findOne({_id: req.params['taskId']})
+        let task = await Task.findOne({_id: req.params['taskId']})
         if (!task) {
           res.status(404).send({error: 'Task không tồn tại!'})
         } else {
@@ -119,22 +119,17 @@ router.patch('/api/users/me/submitTask/:taskId/', auth, async(req, res, next) =>
 router.patch('/api/users/me/pickTask/:taskId/fromTable/:tableId/', auth, async(req, res, next) => {
   try {
     const myTables = await Table.getMyTables(req.user._id);
-    const table = myTables.find(t => t.id === req.params['tableId'])
-    if (!table) {
-      res.status(400).send({message: 'Bạn không phải thành viên của table!'})
+    const task = await Task.findOne({_id: req.params['taskId']});
+    if (!task){
+      res.status(404).send({message: 'Task không tồn tại!'})
     } else {
-      const task = await Task.findOne({_id: req.params['taskId']});
-      if (!task){
-        res.status(404).send({message: 'Task không tồn tại!'})
-      } else {
-        const userInfo = {
-          userId: req.user._id,
-          name: req.user.name
-        }
-        task.assignedTo = userInfo;
-        task.save();
-        res.status(200).send({message: 'Đã nhận task thành công!'})
+      const userInfo = {
+        userId: req.user._id,
+        name: req.user.name
       }
+      task.assignedTo = userInfo;
+      task.save();
+      res.status(200).send({message: 'Đã nhận task thành công!'})
     }
   } catch (error) {
     next(error);
