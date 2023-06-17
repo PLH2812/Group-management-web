@@ -21,6 +21,7 @@ router.post('/api/users/me/createTask/fromTable/:tableId/', auth, async (req, re
         let task = new Task(req.body);
         task.tableId = req.params['tableId'];
         task.status = "OPEN";
+        task.assignedTo = [];
         task.assignedTo = task.assignedTo.concat(req.body.assignee);
         task.save();
         table.tasks = table.tasks.concat({taskId: task._id});
@@ -152,17 +153,11 @@ router.get('/api/users/me/getTask/:taskId/fromTable/:tableId', auth, async (req,
     if (!table){
       res.status(400).send({ error: "Table không tồn tại!"});
     } else {
-      const myTables = await Table.getMyOwnTables(req.user._id);
-      const isOwner = myTables.find(t => t.id === req.params['tableId']);
-      if (!isOwner){
-        res.status(404).send({error: 'Bạn không phải chủ nhóm!'})
-      } else {
-        const task = await Task.findOne({
-          _id: req.params['taskId'],
-          tableId: req.params['tableId']
-        })
-        res.status(200).send({task})
-      }
+      const task = await Task.findOne({
+        _id: req.params['taskId'],
+        tableId: req.params['tableId']
+      })
+      res.status(200).send({task})
     }
   } catch (error) {
     next(error);
