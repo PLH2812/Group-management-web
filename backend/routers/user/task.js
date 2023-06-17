@@ -121,7 +121,7 @@ router.patch('/api/users/me/pickTask/:taskId/fromTable/:tableId/', auth, async(r
         userId: req.user._id,
         name: req.user.name
       }
-      task.assignedTo = userInfo;
+      task.assignedTo.concat(userInfo);
       task.save();
       res.status(200).send({message: 'Đã nhận task thành công!'})
     }
