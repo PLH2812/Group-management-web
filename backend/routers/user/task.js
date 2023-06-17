@@ -18,9 +18,10 @@ router.post('/api/users/me/createTask/fromTable/:tableId/', auth, async (req, re
       if (!isOwner){
         res.status(404).send({error: 'Bạn không phải chủ nhóm!'})
       } else {
-        const task = new Task(req.body);
+        let task = new Task(req.body);
         task.tableId = req.params['tableId'];
         task.status = "OPEN";
+        task.assignedTo = task.assignedTo.concat(req.body.assignee);
         task.save();
         table.tasks = table.tasks.concat({taskId: task._id});
         table.save();
@@ -112,7 +113,6 @@ router.patch('/api/users/me/submitTask/:taskId/', auth, async(req, res, next) =>
 
 router.patch('/api/users/me/pickTask/:taskId/fromTable/:tableId/', auth, async(req, res, next) => {
   try {
-    const myTables = await Table.getMyTables(req.user._id);
     const task = await Task.findOne({_id: req.params['taskId']});
     if (!task){
       res.status(404).send({message: 'Task không tồn tại!'})

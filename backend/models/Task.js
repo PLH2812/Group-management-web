@@ -8,14 +8,15 @@ const taskSchema = mongoose.Schema({
         description: {
             type: String
         },
-        assignedTo:{
+        assignedTo:[
+            {
             userId: {
                 type: String
             },
             name: {
                 type: String
             }
-        },
+        }],
         status:{
             type: String,
             required: true
