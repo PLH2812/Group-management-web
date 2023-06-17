@@ -20,7 +20,7 @@ router.post('/api/users/me/createTask/fromTable/:tableId/', auth, async (req, re
       } else {
         const task = new Task(req.body);
         task.tableId = req.params['tableId'];
-        task.status = "UNSUBMITTED";
+        task.status = "OPEN";
         task.save();
         table.tasks = table.tasks.concat({taskId: task._id});
         table.save();
@@ -67,26 +67,20 @@ router.patch('/api/users/me/editTask/:taskId/fromTable/:tableId/', auth, async (
     if (!table){
       res.status(400).send({ error: "Table không tồn tại!"});
     } else {
-      const myTables = await Table.getMyOwnTables(req.user._id);
-      const isOwner = myTables.find(t => t.id === req.params['tableId']);
-      if (!isOwner){
-        res.status(404).send({error: 'Bạn không phải chủ nhóm!'})
+      const task = await Task.findOne({_id: req.params['taskId']})
+      if (!task) {
+        res.status(404).send({error: 'Task không tồn tại!'})
       } else {
-        const task = await Task.findOne({_id: req.params['taskId']})
-        if (!task) {
-          res.status(404).send({error: 'Task không tồn tại!'})
-        } else {
-          const task = await Task.findByIdAndUpdate(req.params['taskId'], {
-            name: req.body.name,
-            description: req.body.description,
-            status: req.body.status,
-            assignedTo: req.body.assignedTo,
-            startDate: req.body.startDate,
-            endDate: req.body.endDate
-          })
-          task.save();
-          res.status(200).send({message: 'Sửa task thành công!'})
-        }
+        const task = await Task.findByIdAndUpdate(req.params['taskId'], {
+          name: req.body.name,
+          description: req.body.description,
+          status: req.body.status,
+          assignedTo: req.body.assignedTo,
+          startDate: req.body.startDate,
+          endDate: req.body.endDate
+        })
+        task.save();
+        res.status(200).send({message: 'Sửa task thành công!'})
       }
     }
   } catch (error) {
