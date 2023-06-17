@@ -37,6 +37,12 @@ router.get('/api/users/me/groups', auth, async(req, res, next) => {
       req.body.owner = ownerInfo;
       const group = new Group(req.body);
       group.save();
+      let table = new Table;
+      table.name = "To Do";
+      table.description = "To Do table";
+      table.owner = ownerInfo;
+      table.groupId = group._id;
+      table.save();
       res.status(200).send({ message: "Tạo nhóm thành công!"});
     } catch (error) {
       next(error);
