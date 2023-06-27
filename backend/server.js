@@ -12,6 +12,11 @@ app.use(cors({
   origin: process.env.APP_URL
 }))
 
+app.use(cors({
+  credentials: true,
+  origin: "http://localhost:5173"
+}))
+
 app.use(express.json());
 app.use(cookieParser());
 app.use(rootRouter);
