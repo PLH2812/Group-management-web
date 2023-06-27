@@ -12,23 +12,25 @@ const userSchema = mongoose.Schema({
   },
   role:{ //USER or ADMIN
     type: String,
-    required: true
+    required: true,
+    default: 'USER'
   },
   status:{ //ACTIVE or DELETED
     type: String,
-    required: true
+    required: true,
+    default: 'ACTIVE'
   },
   email: {
     type: String,
     searchable: true,
     required: true,
     unique: true,
-    lowercase: true,
-    validate: value => {
-      if (!validator.isEmail(value)) {
-        throw new Error({ error: "Địa chỉ email không hợp lệ" });
-      }
-    }
+    lowercase: true
+    // validate: value => {
+    //   if (!validator.isEmail(value)) {
+    //     throw new Error({ error: "Địa chỉ email không hợp lệ" });
+    //   }
+    // }
   },
   phone: {
     type: String
@@ -41,7 +43,6 @@ const userSchema = mongoose.Schema({
   },
   password: {
     type: String,
-    required: true,
     minLength: 7
   },
   verifiedAt: { 

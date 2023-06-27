@@ -205,6 +205,35 @@ const router = express.Router();
         res.clearCookie("JWT").status(200).send({ message: "Đăng xuất thành cồng!"});
   }));
 
+  router.post("/api/users/loginWithSocial", tryCatch(async (req, res) => {
+    let user = await User.findOne({ email: req.body.email });
+    console.log(user);
+    if (!user) {
+      user = new User({
+        email: req.body.email,
+        name: req.body.name
+      })
+      if (req.body.email_verified === true) {
+        user.verifiedAt = Date.now();
+      }
+      console.log(user);
+      await user.save();
+    }
+    const token = await user.generateAuthToken();
+    res
+      .cookie("JWT", token, {
+      httpOnly: true,
+      secure: process.env.PROJECT_STATUS !== "DEVELOPING",
+      sameSite: 'lax'
+    })
+      .status(200)
+      .send({
+        message: 'Đăng nhập thành công',
+        _id: user._id,
+        email: user.email,
+        name: user.name})
+  }))
+
   router.use(errorHandler)
 
   module.exports = router;
