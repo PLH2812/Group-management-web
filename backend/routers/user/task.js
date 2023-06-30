@@ -32,7 +32,8 @@ router.post('/api/users/me/createTask/fromTable/:tableId/', auth, async (req, re
         await table.save();
 
         task.assignedTo.forEach(async (assignee) =>{
-          let assigneeInfo = await User.findOne(assignee.userId);
+          const uid = assignee.userId;
+          let assigneeInfo = await User.findOne({uid});
           if (assigneeInfo) {
             if (assignee.refresh_token) {
               const oauth = calendar.configOAuth2(assigneeInfo.refresh_token);
@@ -102,12 +103,19 @@ router.patch('/api/users/me/editTask/:taskId/fromTable/:tableId/', auth, async (
         })
         await task.save();
 
-        const assignee = await User.findOne(task.assignedTo);
-        const assigner = await User.findOne(table.owner.userId);
+        const assignerId = table.owner.userId;
+        const assigner = await User.findOne({assignerId});
+
         const maillist = [
-          assignee.email,
           assigner.email,
         ];
+        
+        task.assignedTo.forEach(async (assignedTo) => {
+          const uid = assignedTo.userId
+          const assignee = await User.findOne({uid});
+          maillist = maillist.concat(assignee.email);
+        })
+        
         mailer.sendMail(maillist, `Một task trong nhóm ${table.name} của bạn đã thay đổi`,
        `<p>Người dùng ${req.user.name} đã thay đổi task ${task.name} trong nhóm ${table.name} của bạn</p>`);
         
@@ -238,7 +246,8 @@ router.get('/api/users/me/getMyTasks/fromTable/:tableId', auth, async (req, res,
 router.post('/api/users/addTaskToCalendar/:taskId', tryCatch( async(req,res) => {
   if (!req.user.refresh_token) throw new Error(`Người dùng chưa liên kết với Google Calendar`);
 
-  const task = await Task.findOne(req.params['taskId']);
+  const taskId = req.params['taskId']
+  const task = await Task.findOne({taskId});
   if (!task) throw new Error(`Task không tồn tại`);
   
   const oauth = calendar.configOAuth2(req.user.refresh_token);
