@@ -4,6 +4,8 @@ const errorHandler = require("../../middleware/errorHandler")
 const auth = require("../../middleware/auth").auth;
 const Table = require("../../models/Table");
 const Task = require("../../models/Task");
+const User = require("../../models/User");
+const mailer = require('../../utils/sendMail');
 const { tryCatch } = require("../../utils/tryCatch");
 
 const router = express.Router();
@@ -84,6 +86,16 @@ router.patch('/api/users/me/editTask/:taskId/fromTable/:tableId/', auth, async (
           endDate: req.body.endDate
         })
         await task.save();
+        
+        const assignee = await User.findOne(task.assignedTo);
+        const assigner = await User.findOne(table.owner.userId);
+        const maillist = [
+          assignee.email,
+          assigner.email,
+        ];
+        mailer.sendMail(maillist, `Một task trong nhóm ${table.name} của bạn đã thay đổi`,
+       `<h1>Task ${task.name} đã thay đổi thành công!</h1>`);
+        
         res.status(200).send({message: 'Sửa task thành công!'})
       }
     }
