@@ -86,7 +86,7 @@ router.patch('/api/users/me/editTask/:taskId/fromTable/:tableId/', auth, async (
           endDate: req.body.endDate
         })
         await task.save();
-        
+
         const assignee = await User.findOne(task.assignedTo);
         const assigner = await User.findOne(table.owner.userId);
         const maillist = [
@@ -94,7 +94,7 @@ router.patch('/api/users/me/editTask/:taskId/fromTable/:tableId/', auth, async (
           assigner.email,
         ];
         mailer.sendMail(maillist, `Một task trong nhóm ${table.name} của bạn đã thay đổi`,
-       `<h1>Task ${task.name} đã thay đổi thành công!</h1>`);
+       `<p>Người dùng ${req.user.name} đã thay đổi task ${task.name} trong nhóm ${table.name} của bạn</p>`);
         
         res.status(200).send({message: 'Sửa task thành công!'})
       }
