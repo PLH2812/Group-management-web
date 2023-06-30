@@ -85,8 +85,7 @@ router.delete('/api/users/me/deleteTask/:taskId/fromTable/:tableId/', auth, asyn
 router.patch('/api/users/me/editTask/:taskId/fromTable/:tableId/', auth,  async (req, res, next) => {
   try {
     const tableId = req.params.tableId;
-    console.log(tableId);
-    const table = await Table.findOne({tableId});
+    const table = await Table.findById(tableId);
     if (!table){
       res.status(400).send({ error: "Table không tồn tại!"});
     } else {
@@ -104,19 +103,26 @@ router.patch('/api/users/me/editTask/:taskId/fromTable/:tableId/', auth,  async 
         })
         await task.save();
 
-        const assignerId = table.owner.userId;
-        const assigner = await User.findOne({assignerId});
+        let maillist = [];
 
-        let maillist = [
-          assigner.email,
-        ];
-        
-        task.assignedTo.forEach(async (assignedTo) => {
-          const uid = assignedTo.userId
-          const assignee = await User.findOne({uid});
+        const owners = table.owner;
+        for (let index = 0; index < owners.length; index++) {
+          const assignerId = owners[index].userId;
+          const assigner = await User.findById(assignerId);
+          maillist = maillist.concat(assigner.email);
+        }
+
+        const assignees = task.assignedTo;
+        for (let index = 0; index < assignees.length; index++) {
+          const uid = assignees[index].userId
+          const assignee = await User.findById(uid);
           maillist = maillist.concat(assignee.email);
-        })
-        
+        }
+
+        maillist = maillist.filter((mail, index) => {
+            return maillist.indexOf(mail) === index;
+        });
+
         mailer.sendMail(maillist, `Một task trong nhóm ${table.name} của bạn đã thay đổi`,
        `<p>Người dùng ${req.user.name} đã thay đổi task ${task.name} trong nhóm ${table.name} của bạn</p>`);
         
