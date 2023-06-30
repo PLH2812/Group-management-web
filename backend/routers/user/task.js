@@ -272,7 +272,7 @@ router.post('/api/users/addTasksToCalendar/', tryCatch( async(req,res) => {
 router.post('/api/users/addAllTasksToCalendar/' , tryCatch(async (req, res) => {
   if (!req.user.refresh_token) throw new Error(`Người dùng chưa liên kết với Google Calendar`);
 
-  const tasks = await Task.getMyTasks();
+  const tasks = await Task.getMyTasks(req.user._id);
   const oauth = calendar.configOAuth2(req.user.refresh_token);
 
   tasks.forEach(async (task) => {
