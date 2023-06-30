@@ -22,6 +22,10 @@ const groupSchema = mongoose.Schema({
         type: Date,
         default: Date.now()
     },
+    privacy: {
+        type: String,
+        default: 'PUBLIC'
+    },
     members: [
         {
             userId: {

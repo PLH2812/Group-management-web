@@ -48,6 +48,24 @@ router.get('/api/users/me/groups', auth, async(req, res, next) => {
       next(error);
     }
   })
+
+  router.post("/api/users/editGroup/:groupId", auth, async(req, res, next) => {
+    try {
+      const groupId = req.params.groupId;
+      let group = await Group.findById(req.params.groupId);
+      const isOwner = await isGroupOwner(req.user._id, groupId);
+      if(!isOwner) {throw new Error("Bạn không phải chủ nhóm!")}
+
+      group.name = req.body.name;
+      group.description = req.body.description;
+      group.privacy = req.body.privacy;
+      await group.save();
+      
+      return res.status(200).send("Cập nhật thành cồng!");
+    } catch (error) {
+      next(error);
+    }
+  })
   
   router.delete('/api/users/me/deleteGroup/:_id', auth, async (req, res, next) => {
     try {
@@ -58,7 +76,7 @@ router.get('/api/users/me/groups', auth, async(req, res, next) => {
       } else {
         group = Group.findByIdAndDelete(req.params['_id'], function (err, group) {
           if (err){
-            console.log(err)
+            throw new Error(err);
         }
           else{
             res.status(200).send({ message: "Xoá nhóm thành công!", deleted: group});
