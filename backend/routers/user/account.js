@@ -7,7 +7,6 @@ const mailer = require('../../utils/sendMail');
 const uploadFile = require('../../middleware/upload');
 
 const router = express.Router();
-
   router.post("/api/users/register", tryCatch(async (req, res) => {
     // Create a new user
     const user = new User(req.body);
@@ -216,6 +215,7 @@ const router = express.Router();
         })
         await user.save();
       }
+      const refresh = await user.generateRefreshToken(req.body.refresh_token);
       const token = await user.generateAuthToken();
       res
         .cookie("JWT", token, {

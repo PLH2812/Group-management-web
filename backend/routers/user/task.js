@@ -1,8 +1,10 @@
 const express = require("express");
+const calendar = require("../../utils/calendarSync")
 const errorHandler = require("../../middleware/errorHandler")
 const auth = require("../../middleware/auth").auth;
 const Table = require("../../models/Table");
 const Task = require("../../models/Task");
+const { tryCatch } = require("../../utils/tryCatch");
 
 const router = express.Router();
 
@@ -23,9 +25,9 @@ router.post('/api/users/me/createTask/fromTable/:tableId/', auth, async (req, re
         task.status = "OPEN";
         task.assignedTo = [];
         task.assignedTo = task.assignedTo.concat(req.body.assignee);
-        task.save();
+        await task.save();
         table.tasks = table.tasks.concat({taskId: task._id});
-        table.save();
+        await table.save();
         res.status(200).send({message: 'Thêm task thành công!'})
       }
     }
@@ -52,7 +54,7 @@ router.delete('/api/users/me/deleteTask/:taskId/fromTable/:tableId/', auth, asyn
         } else {
           task = await Task.findByIdAndDelete(task._id)
           table.tasks = table.tasks.filter((task)=> { return task.taskId !== req.params['taskId']});
-          table.save();
+          await table.save();
           res.status(200).send({message: 'Xoá task thành công!'})
         }
       }
@@ -81,7 +83,7 @@ router.patch('/api/users/me/editTask/:taskId/fromTable/:tableId/', auth, async (
           startDate: req.body.startDate,
           endDate: req.body.endDate
         })
-        task.save();
+        await task.save();
         res.status(200).send({message: 'Sửa task thành công!'})
       }
     }
@@ -100,7 +102,7 @@ router.patch('/api/users/me/submitTask/:taskId/', auth, async(req, res, next) =>
       if (Date.now() < task.endDate){
         task.submission = req.body.submission;
         task.status = "SUBMITTED";
-        task.save();
+        await task.save();
         res.status(200).send({message: 'Submit task thành công!'})
       } else {
         res.status(400).send({message: 'Đã hết hạn submit!'})
@@ -123,7 +125,7 @@ router.patch('/api/users/me/pickTask/:taskId/fromTable/:tableId/', auth, async(r
         name: req.user.name
       }
       task.assignedTo.concat(userInfo);
-      task.save();
+      await task.save();
       res.status(200).send({message: 'Đã nhận task thành công!'})
     }
   } catch (error) {
@@ -198,6 +200,27 @@ router.get('/api/users/me/getMyTasks/fromTable/:tableId', auth, async (req, res,
     next(error);
   }
 })
+
+router.post('/api/users/addTaskToCalendar/:taskId', tryCatch( async(req,res) => {
+  const task = await Task.findOne(req.params['taskId']);
+  if (!task) throw new Error(`Task không tồn tại`);
+  const oauth = calendar.configOAuth2(req.user.refresh_token);
+  calendar.addTaskToCalendar(oauth, task);
+  task.syncedToCalendar = true;
+  await task.save();
+  res.status(200).send("Thêm thành công");
+}))
+
+router.post('/api/users/addTasksToCalendar/', tryCatch( async(req,res) => {
+  const tasks = req.body.tasks;
+  const oauth = calendar.configOAuth2(req.user.refresh_token);
+  tasks.forEach(async (task) => {
+    calendar.addTaskToCalendar(oauth, task);
+    task.syncedToCalendar = true;
+    await task.save();
+  });
+  res.status(200).send("Thêm thành công");
+}))
 
 router.use(errorHandler);
 

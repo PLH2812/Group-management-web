@@ -35,6 +35,10 @@ const taskSchema = mongoose.Schema({
         tableId:{
             type:String,
             required: true
+        },
+        syncedToCalendar: {
+            type:Boolean,
+            default: false
         }
     });
 
