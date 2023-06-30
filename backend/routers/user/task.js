@@ -106,7 +106,7 @@ router.patch('/api/users/me/editTask/:taskId/fromTable/:tableId/', auth, async (
         const assignerId = table.owner.userId;
         const assigner = await User.findOne({assignerId});
 
-        const maillist = [
+        let maillist = [
           assigner.email,
         ];
         
