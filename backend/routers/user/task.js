@@ -31,7 +31,8 @@ router.post('/api/users/me/createTask/fromTable/:tableId/', auth, async (req, re
         table.tasks = table.tasks.concat({taskId: task._id});
         await table.save();
 
-        task.assignedTo.forEach(async (assignee) =>{
+        const assignees = task.assignedTo;
+        assignees.forEach(async (assignee) =>{
           const uid = assignee.userId;
           let assigneeInfo = await User.findById(uid);
           if (assigneeInfo != null) {
