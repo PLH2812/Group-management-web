@@ -12,7 +12,7 @@ const router = express.Router();
 
 router.post('/api/users/me/createTask/fromTable/:tableId/', auth, async (req, res, next) => {
   try {
-    const tableId = req.params['tableId'];
+    const tableId = req.params.tableId;
     const table = await Table.findOne({tableId});
     if (!table){
       res.status(400).send({ error: "Table không tồn tại!"});
@@ -23,7 +23,7 @@ router.post('/api/users/me/createTask/fromTable/:tableId/', auth, async (req, re
         res.status(404).send({error: 'Bạn không phải chủ nhóm!'})
       } else {
         let task = new Task(req.body);
-        task.tableId = req.params['tableId'];
+        task.tableId = tableId;
         task.status = "OPEN";
         task.assignedTo = [];
         task.assignedTo = task.assignedTo.concat(req.body.assignee);
@@ -56,7 +56,7 @@ router.post('/api/users/me/createTask/fromTable/:tableId/', auth, async (req, re
 
 router.delete('/api/users/me/deleteTask/:taskId/fromTable/:tableId/', auth, async (req, res, next) => {
   try {
-    const tableId = req.params['tableId'];
+    const tableId = req.params.tableId;
     const table = await Table.findOne({tableId});
     if (!table){
       res.status(400).send({ error: "Table không tồn tại!"});
@@ -82,9 +82,10 @@ router.delete('/api/users/me/deleteTask/:taskId/fromTable/:tableId/', auth, asyn
   }
 })
 
-router.patch('/api/users/me/editTask/:taskId/fromTable/:tableId/', auth, async (req, res, next) => {
+router.patch('/api/users/me/editTask/:taskId/fromTable/:tableId/', auth,  async (req, res, next) => {
   try {
-    const tableId = req.params['tableId'];
+    const tableId = req.params.tableId;
+    console.log(tableId);
     const table = await Table.findOne({tableId});
     if (!table){
       res.status(400).send({ error: "Table không tồn tại!"});
