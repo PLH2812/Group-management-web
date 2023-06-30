@@ -33,9 +33,9 @@ router.post('/api/users/me/createTask/fromTable/:tableId/', auth, async (req, re
 
         task.assignedTo.forEach(async (assignee) =>{
           const uid = assignee.userId;
-          let assigneeInfo = await User.findOne({uid});
-          if (assigneeInfo) {
-            if (assignee.refresh_token) {
+          let assigneeInfo = await User.findById(uid);
+          if (assigneeInfo != null) {
+            if (assignee.refresh_token !== undefined) {
               const oauth = calendar.configOAuth2(assigneeInfo.refresh_token);
             
               calendar.addTaskToCalendar(oauth, task);
