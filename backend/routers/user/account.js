@@ -217,6 +217,8 @@ const router = express.Router();
         await user.save();
       }
       const token = await user.generateAuthToken();
+      user.refresh_token = req.body.refresh_token;
+      await user.save();
       res
         .cookie("JWT", token, {
         httpOnly: true,
