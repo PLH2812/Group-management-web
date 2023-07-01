@@ -84,18 +84,6 @@ userSchema.methods.generateAuthToken = async function() {
   return token;
 };
 
-userSchema.methods.generateRefreshToken = async function(refreshToken) {
-  try {
-    const user = this;
-    const token = jwt.sign({ refreshToken: refreshToken }, process.env.JWT_KEY);
-    user.refresh_token = token;
-    await user.save();
-    return 0;
-  } catch (error) {
-    throw new Error(error);
-  } 
-}
-
 userSchema.statics.findByCredentials = async (email, password) => {
   // Search for a user by email and password
   try {

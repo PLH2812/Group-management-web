@@ -3,17 +3,15 @@ const { OAuth2 } = google.auth;
 const jwt = require("jsonwebtoken");
 const calendarConfig = require('../config/googleAPIConfig');
 
-function addTaskToCalendar(task, refresh_token) {
+  function addTaskToCalendar(task, refresh_token) {
   
     const oAuth2Client = new OAuth2(
       calendarConfig.CLIENT_ID,
       calendarConfig.CLIENT_SECRET
     )
-    
-    const refreshToken = jwt.verify(refresh_token, process.env.JWT_KEY);
 
     oAuth2Client.setCredentials({
-        refresh_token: refreshToken
+        refresh_token: refresh_token
     })
 
     const calendar = google.calendar({ version: 'v3', auth: oAuth2Client })

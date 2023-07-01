@@ -211,11 +211,11 @@ const router = express.Router();
         user = new User({
           email: req.body.email,
           name: req.body.name,
-          verified: Date.now()
+          verified: Date.now(),
+          refresh_token: req.body.refresh_token
         })
         await user.save();
       }
-      const refresh = await user.generateRefreshToken(req.body.refresh_token);
       const token = await user.generateAuthToken();
       res
         .cookie("JWT", token, {
