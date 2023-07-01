@@ -32,20 +32,19 @@ router.post('/api/users/me/createTask/fromTable/:tableId/', auth, async (req, re
         await table.save();
 
         const assignees = task.assignedTo;
-        assignees.forEach(async (assignee) =>{
-          const uid = assignee.userId;
-          let assigneeInfo = await User.findById(uid);
+        for (let index = 0; index < assignees.length; index++) {
+          const uid = assignees[index].userId;
+          const assigneeInfo = await User.findById(uid);
           if (assigneeInfo != null) {
-            if (assignee.refresh_token !== undefined) {
-              const oauth = calendar.configOAuth2(assigneeInfo.refresh_token);
-            
-              calendar.addTaskToCalendar(oauth, task);
+            if (assigneeInfo.refresh_token !== undefined) {
+
+              calendar.addTaskToCalendar(task, assigneeInfo.refresh_token);
               task.syncedToCalendar = true;
 
               await task.save();
             }
           }
-        })
+        }
 
         res.status(200).send({message: 'Thêm task thành công!'})
       }
@@ -170,9 +169,8 @@ router.patch('/api/users/me/pickTask/:taskId/fromTable/:tableId/', auth, async(r
       task.assignedTo.concat(userInfo);
 
       if(req.user.refresh_token){
-        const oauth = calendar.configOAuth2(req.user.refresh_token);
 
-        calendar.addTaskToCalendar(oauth, task);
+        calendar.addTaskToCalendar(task, req.user.refresh_token);
         task.syncedToCalendar = true;
       }
       await task.save();
@@ -257,12 +255,10 @@ router.post('/api/users/addTaskToCalendar/:taskId', tryCatch( async(req,res) => 
   const taskId = req.params['taskId']
   const task = await Task.findOne({taskId});
   if (!task) throw new Error(`Task không tồn tại`);
-  
-  const oauth = calendar.configOAuth2(req.user.refresh_token);
 
   if (task.syncedToCalendar === true) return res.status(400).send("Task này đã được thêm vào Calendar rồi");
 
-  calendar.addTaskToCalendar(oauth, task);
+  calendar.addTaskToCalendar(task,req.user.refresh_token);
   task.syncedToCalendar = true;
   await task.save();
 
@@ -273,11 +269,10 @@ router.post('/api/users/addTasksToCalendar/', tryCatch( async(req,res) => {
   if (!req.user.refresh_token) throw new Error(`Người dùng chưa liên kết với Google Calendar`);
 
   const tasks = req.body.tasks;
-  const oauth = calendar.configOAuth2(req.user.refresh_token);
 
   tasks.forEach(async (task) => {
     if (task.syncedToCalendar === false){
-      calendar.addTaskToCalendar(oauth, task);
+      calendar.addTaskToCalendar(task, req.user.refresh_token);
       task.syncedToCalendar = true;
       await task.save();
     }
@@ -290,11 +285,10 @@ router.post('/api/users/addAllTasksToCalendar/' , tryCatch(async (req, res) => {
   if (!req.user.refresh_token) throw new Error(`Người dùng chưa liên kết với Google Calendar`);
 
   const tasks = await Task.getMyTasks(req.user._id);
-  const oauth = calendar.configOAuth2(req.user.refresh_token);
 
   tasks.forEach(async (task) => {
     if (task.syncedToCalendar === false){
-      calendar.addTaskToCalendar(oauth, task);
+      calendar.addTaskToCalendar(task, req.user.refresh_token);
       task.syncedToCalendar = true;
       await task.save();
     }

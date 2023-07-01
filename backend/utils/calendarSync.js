@@ -3,8 +3,8 @@ const { OAuth2 } = google.auth;
 const jwt = require("jsonwebtoken");
 const calendarConfig = require('../config/googleAPIConfig');
 
-function configOAuth2(refresh_token){
-  try {
+function addTaskToCalendar(task, refresh_token) {
+  
     const oAuth2Client = new OAuth2(
       calendarConfig.CLIENT_ID,
       calendarConfig.CLIENT_SECRET
@@ -15,15 +15,7 @@ function configOAuth2(refresh_token){
     oAuth2Client.setCredentials({
         refresh_token: refreshToken
     })
-    return oAuth2Client;
-  } catch (error) {
-    throw new Error(error);
-  }
-}
 
-
-
-function addTaskToCalendar(oAuth2Client, task) {
     const calendar = google.calendar({ version: 'v3', auth: oAuth2Client })
 
     const eventStartTime = task.startDate;
@@ -48,9 +40,9 @@ function addTaskToCalendar(oAuth2Client, task) {
         { calendarId: 'primary', resource: event },
         err => {
           if (err) throw new Error(err);
-          return 0;
+          console.log("Thêm thành công!");
         }
     )
 }
 
-module.exports = {configOAuth2 ,addTaskToCalendar}
+module.exports = {addTaskToCalendar}
