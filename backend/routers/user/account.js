@@ -115,8 +115,8 @@ const router = express.Router();
     res
       .cookie("JWT", token, {
       httpOnly: true,
-      secure: process.env.PROJECT_STATUS !== "DEVELOPING",
-      sameSite: 'lax'
+      secure: true,
+      sameSite: 'none'
     })
       .status(200)
       .send({
@@ -222,8 +222,8 @@ const router = express.Router();
       res
         .cookie("JWT", token, {
         httpOnly: true,
-        secure: process.env.PROJECT_STATUS !== "DEVELOPING",
-        sameSite: 'lax'
+        secure: true,
+        sameSite: 'none'
       })
         .status(200)
         .send({
