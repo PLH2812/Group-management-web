@@ -18,7 +18,7 @@ app.use(rootRouter);
 
 
 
-app.listen(port, () => {
+const server = app.listen(port, () => {
   console.log(`Server running on port ${port}`);
 });
 
