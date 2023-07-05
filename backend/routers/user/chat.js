@@ -141,7 +141,7 @@ router.patch("/api/users/deleteChatGroup/:chatGroupId", auth, async(req, res, ne
 router.post("/api/users/sendChat/:chatGroupId", auth, async (req, res, next) => {
   try {
     const chatGroupId = req.params.chatGroupId;
-    const uid = req.user.id;
+    const uid = req.user._id;
     const isMember = await isGroupMember(uid, chatGroupId);
     if (!isMember) throw new Error("Bạn không phải là thành viên nhóm chat!");
     const message = {
@@ -162,7 +162,7 @@ router.post("/api/users/sendChat/:chatGroupId", auth, async (req, res, next) => 
 router.get("/api/users/getChat/:chatGroupId", auth, async (req, res, next) => {
   try {
     const chatGroupId = req.params.chatGroupId;
-    const uid = req.user.id;
+    const uid = req.user._id;
     const isMember = await isGroupMember(uid, chatGroupId);
     if (!isMember) throw new Error("Bạn không phải là thành viên nhóm chat!");
     const chatGroup = await ChatGroup.findById(chatGroupId);
@@ -177,7 +177,7 @@ router.patch("/api/users/deleteChat/:chatGroupId/:chatId", auth, async (req, res
   try {
     const chatGroupId = req.params.chatGroupId;
     const chatId = req.params.chatId;
-    const uid = req.user.id;
+    const uid = req.user._id;
     const isOwner = await isGroupOwner(uid, chatGroupId);
     const isSender = await isChatSender(uid, chatGroupId, chatId);
     if (!isOwner || !isSender) { throw new Error("Bạn không có quyền xoá!")}
