@@ -9,7 +9,7 @@ const app = express();
 
 app.use(cors({
   credentials: true,
-  origin: [process.env.APP_URL, "http://localhost:5173"]
+  origin: ["https://gm-ui.vercel.app", "http://localhost:5173"]
 }))
 
 app.use(express.json());
@@ -26,7 +26,7 @@ const io = require("socket.io")(server, {
   pingTimeout: 60000,
   cors: {
     credentials: true,
-    origin: [process.env.APP_URL, "http://localhost:5173"]
+    origin: ["https://gm-ui.vercel.app", "http://localhost:5173"]
   },
 });
 
