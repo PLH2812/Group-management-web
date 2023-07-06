@@ -7,10 +7,10 @@ require("./db/db");
 
 const app = express();
 
-// app.use(cors({
-//   credentials: true,
-//   origin: [process.env.APP_URL, "http://localhost:5173"]
-// }))
+app.use(cors({
+  credentials: true,
+  origin: [process.env.APP_URL, "http://localhost:5173"]
+}))
 
 app.use(express.json());
 app.use(cookieParser());
@@ -48,7 +48,7 @@ io.on("connection", (socket) => {
       if (!members) return console.log("members not defined");
 
       members.forEach((user) => {
-        if (user._id == newMessageReceived.senderId) return;
+        if (user.userId == newMessageReceived.senderId) return;
 
         socket.in(user._id).emit("message received", newMessageReceived);
       });
