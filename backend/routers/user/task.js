@@ -96,6 +96,7 @@ router.patch('/api/users/me/editTask/:taskId/fromTable/:tableId/', auth,  async 
         const task = await Task.findByIdAndUpdate(req.params['taskId'], {
           name: req.body.name,
           description: req.body.description,
+          tableId: req.body.tableId,
           status: req.body.status,
           assignedTo: req.body.assignedTo,
           startDate: req.body.startDate,
