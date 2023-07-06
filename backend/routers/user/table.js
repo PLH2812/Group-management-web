@@ -148,6 +148,18 @@ router.post('/api/users/me/createTable/inGroup/:groupId', auth, async (req, res,
     }
   })
 
+  router.delete('/api/users/me/deleteTable/:tableId', auth, tryCatch(async(req,res) => {
+    const tableId = mongoose.Types.ObjectId(req.params['tableId'])
+    await Table.findOneAndDelete(tableId, function (err, docs) {
+      if (err){
+          throw new Error(err);
+      }
+      else{
+        return res.status(200).send("Đã xoá table: ",docs);
+      }
+    })
+  }))
+
   router.get('/api/users/me/getMembers/fromTable/:tableId', auth, tryCatch(async(req,res) => {
     const tableId = mongoose.Types.ObjectId(req.params['tableId'])
     const table = await Table.findOne(tableId);
