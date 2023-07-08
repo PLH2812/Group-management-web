@@ -36,10 +36,14 @@ const taskSchema = mongoose.Schema({
             type:String,
             required: true
         },
-        syncedToCalendar: {
-            type:Boolean,
-            default: false
-        }
+        syncedToCalendar: [{
+            userId:{
+                type:String
+            },
+            name:{
+                type:String
+            }
+        }]
     });
 
 taskSchema.statics.getMyTasks = async function(userId){
