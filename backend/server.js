@@ -54,6 +54,10 @@ io.on("connection", (socket) => {
       });
     });
 
+    socket.on("new notification", (notification, userId) => {
+      socket.in(userId).emit("new notification", notification);
+    })
+
     socket.off("setup", () => {
       console.log("USER DISCONNECTED");
       socket.leave(userData._id);
