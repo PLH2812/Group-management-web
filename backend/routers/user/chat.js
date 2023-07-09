@@ -7,26 +7,6 @@ const auth = require("../../middleware/auth").auth;
 
 const router = express.Router();
 
-const isGroupMember = async (uid, groupId) => {
-  const id = mongoose.Types.ObjectId(groupId)
-  const user = await ChatGroup.findOne(id,
-  {
-    "members": { "$elemMatch": { "userId": uid } }
-  }).exec();
-  if(user.members.length === 0) return false;
-  return true;
-}
-
-const isGroupOwner = async (uid, groupId) => {
-  const id = mongoose.Types.ObjectId(groupId)
-  const user = await ChatGroup.findOne(id,
-  {
-    "members": { "$elemMatch": { "userId": uid, "isOwner": true } }
-  }).exec();
-  if (user.members.length === 0) return false;
-  return true;
-}
-
 const isChatSender = async (uid, groupId, chatId) => {
   const id = mongoose.Types.ObjectId(groupId)
   const user = await ChatGroup.findOne(id,
@@ -37,15 +17,13 @@ const isChatSender = async (uid, groupId, chatId) => {
   return true;
 }
 
-
-router.get("/api/users/getMyChatGroups", auth, async (req, res, next) => {
+router.get("/api/users/getChatGroup/:taskId", auth, async (req, res, next) => {
   try {
-    const uid = req.user._id;
-    const myChatGroups = await ChatGroup.find({
-      "members": {"$elemMatch": {"userId": uid}}
+    const chatGroup = await ChatGroup.findOne({
+      taskId : req.params.taskId
     }).exec();
-    if (myChatGroups.length === 0) {return res.status(200).send("Bạn hiện không ở trong nhóm chat nào cả!")}
-    return res.status(200).send(myChatGroups);
+    if (!chatGroup) {throw new Error("Nhóm chat không tồn tại!")}
+    return res.status(200).send(chatGroup);
   } catch (error) {
     next(error);
   }
@@ -53,13 +31,6 @@ router.get("/api/users/getMyChatGroups", auth, async (req, res, next) => {
 
 router.post("/api/users/createChatGroup", auth, async (req, res, next) => {
     try {
-      const owner = {
-        "userId": req.user._id,
-        "name": req.user.name,
-        "isOwner": true
-      }
-      req.body.members = [];
-      req.body.members.push(owner);
       let chatGroup = new ChatGroup(req.body);
       chatGroup.save();
       return res.status(200).send("Tạo thành công!");
@@ -68,82 +39,9 @@ router.post("/api/users/createChatGroup", auth, async (req, res, next) => {
     }
 });
 
-router.post("/api/users/addMember/:chatGroupId/:memberId", auth, async (req, res, next) => {
-  try {
-    const uid = req.user._id;
-    const chatGroupId = req.params.chatGroupId;
-    const isOwner = await isGroupOwner(uid, chatGroupId);
-    if(!isOwner) {throw new Error("Bạn không phải chủ nhóm chat!")}
-    const memberId = req.params.memberId;
-    const isMember = await isGroupMember(memberId, chatGroupId)
-    if(isMember) {throw new Error("Thành viên này đã ở trong nhóm chat rồi!")}
-    const member = await User.findById(memberId);
-    const chatGroup = await ChatGroup.findByIdAndUpdate(chatGroupId,{
-      $push: { members: {
-        "userId": member._id,
-        "name": member.name
-      }}
-    });
-    chatGroup.save();
-    return res.status(200).send("Thêm thành công!");
-  } catch (error) {
-    next(error);
-  }
-})
-
-router.patch("/api/users/removeMember/:chatGroupId/:memberId", auth, async (req, res, next) => {
-  try {
-    const uid = req.user._id;
-    const chatGroupId = req.params.chatGroupId;
-    const isOwner = await isGroupOwner(uid, chatGroupId);
-    if(!isOwner) {throw new Error("Bạn không phải chủ nhóm chat!")}
-    const memberId = req.params.memberId;
-    const isMember = await isGroupMember(memberId, chatGroupId)
-    if(!isMember) {throw new Error("Thành viên này không ở trong nhóm chat!")}
-    const memberIsOwner = (memberId == uid)
-    if(memberIsOwner) {throw new Error("Bạn không thể xoá chủ nhóm!")}
-    const chatGroup = await ChatGroup.findByIdAndUpdate(chatGroupId,{
-      $pull: { members: {
-        "userId": memberId
-      }}
-    });
-    chatGroup.save();
-    return res.status(200).send("Xoá thành công!"); 
-  } catch (error) {
-    next(error);
-  }
-})
-
-router.get("/api/users/getChatMembers/:chatGroupId", auth, async (req, res, next) => {
-  try {
-    const chatGroupId = req.params.chatGroupId;
-    const chatGroup = await ChatGroup.findById(chatGroupId);
-    const members = chatGroup.members;
-    return res.status(200).send(members); 
-  } catch (error) {
-    next(error);
-  }
-})
-
-router.patch("/api/users/deleteChatGroup/:chatGroupId", auth, async(req, res, next)=>{
-  try {
-    const uid = req.user._id;
-    const chatGroupId = req.params.chatGroupId;
-    const isOwner = await isGroupOwner(uid, chatGroupId);
-    if(!isOwner) {throw new Error("Bạn không phải chủ nhóm chat!")}
-    await ChatGroup.findByIdAndDelete(chatGroupId);
-    return res.status(200).send("Xoá thành công!");
-  } catch (error) {
-    next(error);
-  }
-});
-
 router.post("/api/users/sendChat/:chatGroupId", auth, async (req, res, next) => {
   try {
     const chatGroupId = req.params.chatGroupId;
-    const uid = req.user._id;
-    const isMember = await isGroupMember(uid, chatGroupId);
-    if (!isMember) throw new Error("Bạn không phải là thành viên nhóm chat!");
     const message = {
       messageContent: req.body.messageContent,
       senderId: uid
@@ -162,10 +60,8 @@ router.post("/api/users/sendChat/:chatGroupId", auth, async (req, res, next) => 
 router.get("/api/users/getChat/:chatGroupId", auth, async (req, res, next) => {
   try {
     const chatGroupId = req.params.chatGroupId;
-    const uid = req.user._id;
-    const isMember = await isGroupMember(uid, chatGroupId);
-    if (!isMember) throw new Error("Bạn không phải là thành viên nhóm chat!");
     const chatGroup = await ChatGroup.findById(chatGroupId);
+    if (!chatGroup) {throw new Error("Nhóm chat không tồn tại!")}
     const messages = chatGroup.messages;
     return res.status(200).send(messages);
   } catch (error) {
@@ -178,9 +74,8 @@ router.patch("/api/users/deleteChat/:chatGroupId/:chatId", auth, async (req, res
     const chatGroupId = req.params.chatGroupId;
     const chatId = req.params.chatId;
     const uid = req.user._id;
-    const isOwner = await isGroupOwner(uid, chatGroupId);
     const isSender = await isChatSender(uid, chatGroupId, chatId);
-    if (!isOwner || !isSender) { throw new Error("Bạn không có quyền xoá!")}
+    if (!isSender) { throw new Error("Bạn không có quyền xoá!")}
     const chatGroup = await ChatGroup.findByIdAndUpdate(chatGroupId,{
       $pull: {messages: {"_id": chatId}}
     });

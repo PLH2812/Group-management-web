@@ -5,6 +5,7 @@ const auth = require("../../middleware/auth").auth;
 const Table = require("../../models/Table");
 const Task = require("../../models/Task");
 const User = require("../../models/User");
+const ChatGroup = require("../../models/ChatGroup");
 const mailer = require('../../utils/sendMail');
 const { tryCatch } = require("../../utils/tryCatch");
 
@@ -71,7 +72,9 @@ router.delete('/api/users/me/deleteTask/:taskId/fromTable/:tableId/', auth, asyn
         if (!task) {
           res.status(404).send({error: 'Task không tồn tại!'})
         } else {
+          const chatGroup = await ChatGroup.findOne({taskId: task._id})
           task = await Task.findByIdAndDelete(task._id)
+          chatGroup = await ChatGroup.findByIdAndDelete(chatGroup._id)
           table.tasks = table.tasks.filter((task)=> { return task.taskId !== req.params['taskId']});
           await table.save();
           res.status(200).send({message: 'Xoá task thành công!'})
@@ -104,7 +107,7 @@ router.patch('/api/users/me/editTask/:taskId/fromTable/:tableId/', auth,  async 
           endDate: req.body.endDate
         })
         await task.save();
-
+        
         let maillist = [];
 
         const owners = table.owner;

@@ -1,12 +1,6 @@
 const mongoose = require("mongoose");
 
 const chatGroupSchema = mongoose.Schema({
-    name:{
-        type: String
-    },
-    description:{
-        type: String
-    },
     messages:[
         {
             messageContent: {
@@ -21,28 +15,9 @@ const chatGroupSchema = mongoose.Schema({
             }
         }
     ],
-    members: [
-        {
-            userId: {
-                type: String,
-                required: true
-            },
-            name: {
-                type: String,
-                required: true
-            },
-            isOwner:{
-                type: Boolean
-            },
-            joinedDate: {
-                type: Date,
-                default: Date.now()
-            }
-        }
-    ],
-    createdDate:{
-        type: Date,
-        default: Date.now()
+    taskId:{
+        type: String,
+        required: true
     },
     total_messages:{
         type: Number,
