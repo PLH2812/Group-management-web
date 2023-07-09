@@ -46,11 +46,10 @@ router.post("/api/users/sendChat/:chatGroupId", auth, async (req, res, next) => 
       messageContent: req.body.messageContent,
       senderId: uid
     }
-    const chatGroup = await ChatGroup.findByIdAndUpdate(chatGroupId,{
+    await ChatGroup.findByIdAndUpdate(chatGroupId,{
       $push: { messages: message },
       $inc: {total_messages: 1} 
-    });
-    chatGroup.save();
+    }).exec();
     return res.status(200).send("Gửi thành cồng!");
   } catch (error) {
     next(error);
