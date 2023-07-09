@@ -48,7 +48,7 @@ router.post('/api/users/me/createTask/fromTable/:tableId/', auth, async (req, re
           }
         }
 
-        res.status(200).send("Tạo task thành công: ", task);
+        res.status(200).send(task);
       }
     }
   } catch (error) {
