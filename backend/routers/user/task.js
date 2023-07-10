@@ -5,6 +5,7 @@ const auth = require("../../middleware/auth").auth;
 const Table = require("../../models/Table");
 const Task = require("../../models/Task");
 const User = require("../../models/User");
+const Notification = require("../../models/Notification");
 const ChatGroup = require("../../models/ChatGroup");
 const mailer = require('../../utils/sendMail');
 const { tryCatch } = require("../../utils/tryCatch");
@@ -34,10 +35,21 @@ router.post('/api/users/me/createTask/fromTable/:tableId/', auth, async (req, re
         await table.save();
 
         const assignees = task.assignedTo;
+        let notifications = []
         for (let index = 0; index < assignees.length; index++) {
           const uid = assignees[index].userId;
           const assigneeInfo = await User.findById(uid);
           if (assigneeInfo != null) {
+            //tạo notification
+            const notification = new Notification({
+              userId: uid,
+              title: `Bạn được phân công một task trong nhóm ${table.name}`,
+              description: `Người dùng ${req.user.name} đã phân công task ${task.name} trong nhóm ${table.name} cho bạn`
+            })
+            await notification.save();
+            notifications = notifications.concat(notification);
+
+            //sync calendar
             if (assigneeInfo.refresh_token !== undefined) {
 
               calendar.addTaskToCalendar(task, assigneeInfo.refresh_token);
@@ -48,7 +60,7 @@ router.post('/api/users/me/createTask/fromTable/:tableId/', auth, async (req, re
           }
         }
 
-        res.status(200).send(task);
+        res.status(200).send({task,notifications});
       }
     }
   } catch (error) {
@@ -109,12 +121,14 @@ router.patch('/api/users/me/editTask/:taskId/fromTable/:tableId/', auth,  async 
         await task.save();
         
         let maillist = [];
+        let uidList = [];
 
         const owners = table.owner;
         for (let index = 0; index < owners.length; index++) {
           const assignerId = owners[index].userId;
           const assigner = await User.findById(assignerId);
           maillist = maillist.concat(assigner.email);
+          uidList = uidList.concat(assignerId);
         }
 
         const assignees = task.assignedTo;
@@ -122,7 +136,24 @@ router.patch('/api/users/me/editTask/:taskId/fromTable/:tableId/', auth,  async 
           const uid = assignees[index].userId
           const assignee = await User.findById(uid);
           maillist = maillist.concat(assignee.email);
+          uidList = uidList.concat(assignerId)
         }
+
+        //create notification
+        let notifications = []
+        for (let index = 0; index < uidList.length; index++) {
+          const uid = uidList[index];
+          const user = await User.findById(uid);
+          const notification = new Notification({
+            userId: user._id,
+            title: `Một task trong nhóm ${table.name} của bạn đã thay đổi`,
+            description: `Người dùng ${req.user.name} đã thay đổi task ${task.name} trong nhóm ${table.name} của bạn`
+          })
+          notifications = notifications.concat(notification);
+          await notification.save();
+          uidList = uidList.concat(assignerId)
+        }
+
 
         maillist = maillist.filter((mail, index) => {
             return maillist.indexOf(mail) === index;
@@ -131,7 +162,7 @@ router.patch('/api/users/me/editTask/:taskId/fromTable/:tableId/', auth,  async 
         mailer.sendMail(maillist, `Một task trong nhóm ${table.name} của bạn đã thay đổi`,
        `<p>Người dùng ${req.user.name} đã thay đổi task ${task.name} trong nhóm ${table.name} của bạn</p>`);
         
-        res.status(200).send({message: 'Sửa task thành công!'})
+        res.status(200).send({message: 'Sửa task thành công!', notifications})
       }
     }
   } catch (error) {

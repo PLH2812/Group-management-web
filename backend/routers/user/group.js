@@ -4,6 +4,7 @@ const { default: mongoose } = require("mongoose");
 const errorHandler = require("../../middleware/errorHandler")
 const User = require("../../models/User");
 const auth = require("../../middleware/auth").auth;
+const Notification = require("../../models/Notification");
 const Group = require("../../models/Group");
 const Table = require("../../models/Table");
 const Task = require("../../models/Task");
@@ -100,7 +101,13 @@ router.get('/api/users/me/groups', auth, async(req, res, next) => {
       mailer.sendMail(user.email, "Lời mời vào nhóm!",
        `<h1>Bạn đã được mời vào nhóm ${groupName}! </br></h1>
        <a href="${process.env.APP_URL}/invitation?uid=${uid}&&groupId=${groupId}">Nhấn vào đây để chấp nhận</a>`);
-      return res.status(200).send("Gửi thành cồng!");
+      const notification = new Notification({
+        userId: uid,
+        title: `Bạn nhận được lời mời vào nhóm ${group.name}.`,
+        description: `Người dùng ${req.user.name} đã mời bạn vào nhóm ${group.name}, hãy kiểm tra email để xác nhận.`
+      })
+      await notification.save();
+      return res.status(200).send({message: "Gửi thành cồng!", notification});
     } catch (error) {
       next(error);
     }
@@ -165,7 +172,13 @@ router.get('/api/users/me/groups', auth, async(req, res, next) => {
           })
           group.members = group.members.filter(function(mem) { return mem.userId != member._id; }); 
           group.save();
-          res.status(200).send({message: "Đã xoá người dùng khỏi nhóm!"});
+          const notification = new Notification({
+            userId: member._id,
+            title: `Bạn đã bị xoá khỏi nhóm ${group.name}.`,
+            description: `Bạn đã bị xoá khỏi nhóm ${group.name}.`
+          })
+          await notification.save();
+          res.status(200).send({message: "Đã xoá người dùng khỏi nhóm!", notification});
         }
       }
     } catch (error) {
