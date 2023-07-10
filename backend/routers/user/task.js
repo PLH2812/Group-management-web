@@ -44,7 +44,8 @@ router.post('/api/users/me/createTask/fromTable/:tableId/', auth, async (req, re
             const notification = new Notification({
               userId: uid,
               title: `Bạn được phân công một task trong nhóm ${table.name}`,
-              description: `Người dùng ${req.user.name} đã phân công task ${task.name} trong nhóm ${table.name} cho bạn`
+              description: `Người dùng ${req.user.name} đã phân công task ${task.name} trong nhóm ${table.name} cho bạn`,
+              taskId: task._id
             })
             await notification.save();
             notifications = notifications.concat(notification);
