@@ -15,7 +15,11 @@ router.post("/api/users/createNotification", auth, tryCatch(async (req, res) => 
 router.get("/api/users/getNotifications", auth, tryCatch(async (req, res) => {
     const uid = req.user._id;
     const notifications = await Notification.find({userId: uid}).exec();
-    return res.status(200).send(notifications);
+    var badge = 0;
+    notifications.forEach(notification => {
+        if (notification.readAt === undefined) { badge = badge + 1 }
+    })
+    return res.status(200).send({notifications, badge});
 }))
 
 router.get("/api/users/getNotification/:notificationId", auth, tryCatch(async (req, res) => {
