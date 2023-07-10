@@ -54,8 +54,8 @@ io.on("connection", (socket) => {
       });
     });
 
-    socket.on("new notification", (notification, userId) => {
-      socket.in(userId).emit("new notification", notification);
+    socket.on("new notification", (notification) => {
+      socket.in(notification.userId).emit("new notification", notification);
     })
 
     socket.off("setup", () => {
