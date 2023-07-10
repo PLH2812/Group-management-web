@@ -156,7 +156,7 @@ const router = express.Router();
   
   router.patch('/api/users/me', auth, tryCatch (async(req, res) => {
       // Update user profile
-      const user = await User.findOne(req.user._id);
+      const user = await User.findById(req.user._id);
       user.update({
         name: req.body.name,
         email: req.body.email,
@@ -176,7 +176,8 @@ const router = express.Router();
       }
 
       res.status(200).send({
-        message: "Upload thành công file: " + req.file.originalname,
+        message: "Upload thành công file!", 
+        filename: req.file.originalname,
       });
     }
     catch (error){
@@ -185,6 +186,22 @@ const router = express.Router();
           "File không được lớn hơn 2MB!"
         );
       }
+      next(error);
+    }
+  })
+
+  router.post('/api/users/me/editProfile', auth, async(req, res, next) => {
+    try {
+      const update = {
+        firstName: req.body.firstName,
+        lastName: req.body.lastName,
+        phone: req.body.phone,
+        dateOfBirth: req.body.dateOfBirth,
+        avatarUrl: req.body.avatarUrl
+      }
+      await User.findByIdAndUpdate(req.user._id, update);
+      res.status(200).send({ message: "Cập nhật thành cồng!"});
+    } catch (error) {
       next(error);
     }
   })
