@@ -47,6 +47,18 @@ router.post("/api/users/createChatGroup", auth, async (req, res, next) => {
     }
 });
 
+router.patch("/api/users/updateChatName/:groupId", auth, async (req, res, next) => {
+  try {
+    const filter = {groupId: req.params.groupId};
+    const update = {name: req.body.name};
+    const chat = await ChatGroup.findOneAndUpdate(filter, update);
+    if (!chat) throw new Error("Không tìm thấy nhóm chat");
+    return res.status(200).send("Tạo thành công!");
+  } catch (error) {
+    next(error);
+  }
+})
+
 router.post("/api/users/sendChat/:taskId/:groupId", auth, async (req, res, next) => {
   try {
     const uid = req.user._id;
