@@ -8,6 +8,7 @@ const Notification = require("../../models/Notification");
 const Group = require("../../models/Group");
 const Table = require("../../models/Table");
 const Task = require("../../models/Task");
+const ChatGroup = require("../../models/ChatGroup");
 const { tryCatch } = require("../../utils/tryCatch");
 
 const router = express.Router();
@@ -37,13 +38,17 @@ router.get('/api/users/me/groups', auth, async(req, res, next) => {
       const ownerInfo = ({userId: req.user._id, name: req.user.name});
       req.body.owner = ownerInfo;
       const group = new Group(req.body);
-      group.save();
+      await group.save();
       let table = new Table;
       table.name = "To Do";
       table.description = "To Do table";
       table.owner = ownerInfo;
       table.groupId = group._id;
-      table.save();
+      await table.save();
+      const chatGroup = new ChatGroup({
+        groupId: group._id
+      });
+      await chatGroup.save();
       res.status(200).send({ message: "Tạo nhóm thành công!", group});
     } catch (error) {
       next(error);
