@@ -147,7 +147,8 @@ router.patch('/api/users/me/editTask/:taskId/fromTable/:tableId/', auth,  async 
           const notification = new Notification({
             userId: user._id,
             title: `Một task trong nhóm ${table.name} của bạn đã thay đổi`,
-            description: `Người dùng ${req.user.name} đã thay đổi task ${task.name} trong nhóm ${table.name} của bạn`
+            description: `Người dùng ${req.user.name} đã thay đổi task ${task.name} trong nhóm ${table.name} của bạn`,
+            taskId: task._id
           })
           notifications = notifications.concat(notification);
           await notification.save();

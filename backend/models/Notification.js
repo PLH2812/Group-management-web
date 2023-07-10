@@ -12,6 +12,9 @@ const notificationSchema = mongoose.Schema({
     description:{
         type: String
     },
+    taskId:{
+        type:String
+    },
     createdAt:{
         type: Date,
         default: Date.now()
