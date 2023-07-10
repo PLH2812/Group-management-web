@@ -83,6 +83,7 @@ router.get('/api/users/me/groups', auth, async(req, res, next) => {
       } else {
         const filter = {_id: req.params._id};
         await Group.findOneAndDelete(filter);
+        await ChatGroup.findOneAndDelete({groupId: group._id});
         return res.status(200).send({message:"Xoá nhóm thành công!", deleted: group});
       }
     } catch (error) {
