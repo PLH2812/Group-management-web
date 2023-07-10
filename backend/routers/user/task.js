@@ -141,6 +141,10 @@ router.patch('/api/users/me/editTask/:taskId/fromTable/:tableId/', auth,  async 
         }
 
         //create notification
+        uidList = uidList.filter((uid, index) => {
+          return uidList.indexOf(uid) === index;
+        });
+        
         let notifications = []
         for (let index = 0; index < uidList.length; index++) {
           const uid = uidList[index];
