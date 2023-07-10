@@ -42,6 +42,7 @@ router.post("/api/users/createChatGroup", auth, async (req, res, next) => {
 router.post("/api/users/sendChat/:taskId", auth, async (req, res, next) => {
   try {
     const taskId = req.params.taskId;
+    const uid = req.user._id;
     const message = {
       messageContent: req.body.messageContent,
       senderId: uid
