@@ -137,7 +137,7 @@ router.patch('/api/users/me/editTask/:taskId/fromTable/:tableId/', auth,  async 
           const uid = assignees[index].userId
           const assignee = await User.findById(uid);
           maillist = maillist.concat(assignee.email);
-          uidList = uidList.concat(assignerId)
+          uidList = uidList.concat(uid);
         }
 
         //create notification
@@ -153,7 +153,6 @@ router.patch('/api/users/me/editTask/:taskId/fromTable/:tableId/', auth,  async 
           })
           notifications = notifications.concat(notification);
           await notification.save();
-          uidList = uidList.concat(assignerId)
         }
 
 
