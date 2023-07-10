@@ -18,12 +18,13 @@ const chatGroupSchema = mongoose.Schema({
                     type:String
                 }
             }
-            
         }
     ],
     taskId:{
-        type: String,
-        required: true
+        type: String
+    },
+    groupId:{
+        type: String
     },
     total_messages:{
         type: Number,
