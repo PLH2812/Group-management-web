@@ -10,9 +10,15 @@ const chatGroupSchema = mongoose.Schema({
               type: Date,
                default: Date.now()
             },
-            senderId:{
-                type: String
+            sender:{
+                senderId:{
+                    type: String
+                },
+                name:{
+                    type:String
+                }
             }
+            
         }
     ],
     taskId:{

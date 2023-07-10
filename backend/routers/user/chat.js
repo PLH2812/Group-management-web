@@ -11,7 +11,8 @@ const isChatSender = async (uid, groupId, chatId) => {
   const id = mongoose.Types.ObjectId(groupId)
   const user = await ChatGroup.findOne(id,
   {
-    "messages": { "$elemMatch": { "_id": chatId, "senderId": uid } }
+    "messages": { "$elemMatch": { "_id": chatId } },
+    "sender": { "$elemMatch": { "senderId": uid } }
   }).exec();
   if (user.messages.length === 0) return false;
   return true;
@@ -45,14 +46,17 @@ router.post("/api/users/sendChat/:taskId", auth, async (req, res, next) => {
     const uid = req.user._id;
     const message = {
       messageContent: req.body.messageContent,
-      senderId: uid
+      sender: {
+        senderId: uid,
+        name: req.user.name
+      }
     }
     const filter = {taskId: taskId};
     await ChatGroup.findOneAndUpdate(filter,{
       $push: { messages: message },
       $inc: {total_messages: 1} 
     }).exec();
-    return res.status(200).send({message: "Gửi thành cồng!", sender: {_id: req.user._id, name: req.user.name}});
+    return res.status(200).send({message: "Gửi thành cồng!"});
   } catch (error) {
     next(error);
   }
