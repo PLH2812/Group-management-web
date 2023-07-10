@@ -80,12 +80,12 @@ router.get('/api/users/me/groups', auth, async(req, res, next) => {
       if (!group){
         res.status(400).send({ error: "Bạn không phải chủ nhóm!"});
       } else {
-        group = await Group.findByIdAndDelete(req.params['_id'], function (err, group) {
+        await Group.findByIdAndDelete(req.params['_id'], function (err, docs) {
           if (err){
             throw new Error(err);
         }
           else{
-            res.status(200).send({ message: "Xoá nhóm thành công!", deleted: group});
+            res.status(200).send({ message: "Xoá nhóm thành công!", deleted: docs});
         }
         });
       }
