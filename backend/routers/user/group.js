@@ -74,7 +74,7 @@ router.get('/api/users/me/groups', auth, async(req, res, next) => {
       if (!group){
         res.status(400).send({ error: "Bạn không phải chủ nhóm!"});
       } else {
-        group = Group.findByIdAndDelete(req.params['_id'], function (err, group) {
+        group = await Group.findByIdAndDelete(req.params['_id'], function (err, group) {
           if (err){
             throw new Error(err);
         }
