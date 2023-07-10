@@ -39,14 +39,15 @@ router.post("/api/users/createChatGroup", auth, async (req, res, next) => {
     }
 });
 
-router.post("/api/users/sendChat/:chatGroupId", auth, async (req, res, next) => {
+router.post("/api/users/sendChat/:taskId", auth, async (req, res, next) => {
   try {
-    const chatGroupId = req.params.chatGroupId;
+    const taskId = req.params.taskId;
     const message = {
       messageContent: req.body.messageContent,
       senderId: uid
     }
-    await ChatGroup.findByIdAndUpdate(chatGroupId,{
+    const filter = {taskId: taskId};
+    await ChatGroup.findOneAndUpdate(filter,{
       $push: { messages: message },
       $inc: {total_messages: 1} 
     }).exec();
@@ -56,10 +57,10 @@ router.post("/api/users/sendChat/:chatGroupId", auth, async (req, res, next) => 
   }
 });
 
-router.get("/api/users/getChat/:chatGroupId", auth, async (req, res, next) => {
+router.get("/api/users/getChat/:taskId", auth, async (req, res, next) => {
   try {
-    const chatGroupId = req.params.chatGroupId;
-    const chatGroup = await ChatGroup.findById(chatGroupId);
+    const taskId = req.params.taskId;
+    const chatGroup = await ChatGroup.findOne({taskId: taskId});
     if (!chatGroup) {throw new Error("Nhóm chat không tồn tại!")}
     const messages = chatGroup.messages;
     return res.status(200).send(messages);
@@ -68,17 +69,17 @@ router.get("/api/users/getChat/:chatGroupId", auth, async (req, res, next) => {
   }
 })
 
-router.patch("/api/users/deleteChat/:chatGroupId/:chatId", auth, async (req, res, next) => {
+router.patch("/api/users/deleteChat/:taskId/:chatId", auth, async (req, res, next) => {
   try {
-    const chatGroupId = req.params.chatGroupId;
+    const taskId = req.params.taskId;
+    const chatGroup = await ChatGroup.findOne({taskId: taskId});
     const chatId = req.params.chatId;
     const uid = req.user._id;
-    const isSender = await isChatSender(uid, chatGroupId, chatId);
+    const isSender = await isChatSender(uid, chatGroup._id, chatId);
     if (!isSender) { throw new Error("Bạn không có quyền xoá!")}
-    const chatGroup = await ChatGroup.findByIdAndUpdate(chatGroupId,{
+    await ChatGroup.findOneAndUpdate({taskId: taskId},{
       $pull: {messages: {"_id": chatId}}
-    });
-    chatGroup.save();
+    }).exec();
     return res.status(200).send("Đã xoá thành công!");
   } catch (error) {
     next(error);
