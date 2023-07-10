@@ -50,7 +50,7 @@ io.on("connection", (socket) => {
       members.forEach((user) => {
         if (user.userId == newMessageReceived.senderId) return;
 
-        socket.in(user._id).emit("message received", newMessageReceived);
+        socket.in(user.userId).emit("message received", newMessageReceived);
       });
     });
 
