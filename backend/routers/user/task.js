@@ -59,7 +59,7 @@ router.post('/api/users/me/createTask/fromTable/:tableId/', auth, async (req, re
 router.delete('/api/users/me/deleteTask/:taskId/fromTable/:tableId/', auth, async (req, res, next) => {
   try {
     const tableId = req.params.tableId;
-    const table = await Table.findOne({tableId});
+    let table = await Table.findOne({tableId});
     if (!table){
       res.status(400).send({ error: "Table không tồn tại!"});
     } else {

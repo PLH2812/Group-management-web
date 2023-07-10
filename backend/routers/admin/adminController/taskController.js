@@ -53,7 +53,7 @@ async function deleteTask(taskId, tableId) {
                 throw new Error(err);
             }
             else{
-                const table = await Table.findById(tableId);
+                let table = await Table.findById(tableId);
                 table.tasks = table.tasks.filter((task)=> { return task.taskId !== req.params['taskId']});
                 await table.save();
                 return task
