@@ -52,7 +52,7 @@ router.post("/api/users/sendChat/:taskId", auth, async (req, res, next) => {
       $push: { messages: message },
       $inc: {total_messages: 1} 
     }).exec();
-    return res.status(200).send("Gửi thành cồng!");
+    return res.status(200).send({message: "Gửi thành cồng!", sender: {_id: req.user._id, name: req.user.name}});
   } catch (error) {
     next(error);
   }
