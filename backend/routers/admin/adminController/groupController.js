@@ -43,7 +43,7 @@ async function editGroup(groupId, updateInfo) {
 async function deleteGroup(groupId) {
     try {
         const filter = {_id: groupId};
-        await Group.findOneAndDelete(filter, function (err, group) {
+        Group.findOneAndDelete(filter, function (err, group) {
             if (err){
                 throw new Error(err);
             }

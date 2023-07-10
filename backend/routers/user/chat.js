@@ -18,11 +18,18 @@ const isChatSender = async (uid, groupId, chatId) => {
   return true;
 }
 
-router.get("/api/users/getChatGroup/:taskId", auth, async (req, res, next) => {
+router.get("/api/users/getChatGroup/:taskId/:groupId", auth, async (req, res, next) => {
   try {
-    const chatGroup = await ChatGroup.findOne({
-      taskId : req.params.taskId
-    }).exec();
+    var chatGroup
+    if (req.params.taskId != 1){
+      chatGroup = await ChatGroup.findOne({
+        taskId : req.params.taskId
+      }).exec();
+    } else {
+      chatGroup = await ChatGroup.findOne({
+        groupId : req.params.groupId
+      }).exec();
+    }
     if (!chatGroup) {throw new Error("Nhóm chat không tồn tại!")}
     return res.status(200).send(chatGroup);
   } catch (error) {
@@ -40,9 +47,8 @@ router.post("/api/users/createChatGroup", auth, async (req, res, next) => {
     }
 });
 
-router.post("/api/users/sendChat/:taskId", auth, async (req, res, next) => {
+router.post("/api/users/sendChat/:taskId/:groupId", auth, async (req, res, next) => {
   try {
-    const taskId = req.params.taskId;
     const uid = req.user._id;
     const message = {
       messageContent: req.body.messageContent,
@@ -51,21 +57,32 @@ router.post("/api/users/sendChat/:taskId", auth, async (req, res, next) => {
         name: req.user.name
       }
     }
-    const filter = {taskId: taskId};
-    await ChatGroup.findOneAndUpdate(filter,{
-      $push: { messages: message },
-      $inc: {total_messages: 1} 
-    }).exec();
+    if (req.params.taskId != 1){
+      const filter = {taskId: req.params.taskId};
+      await ChatGroup.findOneAndUpdate(filter,{
+        $push: { messages: message },
+        $inc: {total_messages: 1} 
+      }).exec();
+    } else {
+      const filter = {groupId: req.params.groupId};
+      await ChatGroup.findOneAndUpdate(filter,{
+        $push: { messages: message },
+        $inc: {total_messages: 1} 
+      }).exec();
+    }
     return res.status(200).send({message: "Gửi thành cồng!"});
   } catch (error) {
     next(error);
   }
 });
 
-router.get("/api/users/getChat/:taskId", auth, async (req, res, next) => {
+router.get("/api/users/getChat/:taskId/:groupId", auth, async (req, res, next) => {
   try {
-    const taskId = req.params.taskId;
-    const chatGroup = await ChatGroup.findOne({taskId: taskId});
+    if (req.params.taskId != 1){
+      var chatGroup = await ChatGroup.findOne({taskId: req.params.taskId});
+    } else {
+      var chatGroup = await ChatGroup.findOne({groupId: req.params.groupId});
+    }
     if (!chatGroup) {throw new Error("Nhóm chat không tồn tại!")}
     const messages = chatGroup.messages;
     return res.status(200).send(messages);
@@ -74,17 +91,26 @@ router.get("/api/users/getChat/:taskId", auth, async (req, res, next) => {
   }
 })
 
-router.patch("/api/users/deleteChat/:taskId/:chatId", auth, async (req, res, next) => {
+router.patch("/api/users/deleteChat/:taskId/:groupId/:chatId", auth, async (req, res, next) => {
   try {
-    const taskId = req.params.taskId;
-    const chatGroup = await ChatGroup.findOne({taskId: taskId});
-    const chatId = req.params.chatId;
     const uid = req.user._id;
-    const isSender = await isChatSender(uid, chatGroup._id, chatId);
-    if (!isSender) { throw new Error("Bạn không có quyền xoá!")}
-    await ChatGroup.findOneAndUpdate({taskId: taskId},{
-      $pull: {messages: {"_id": chatId}}
-    }).exec();
+    if (req.params.taskId != 1){
+      const chatGroup = await ChatGroup.findOne({taskId: req.params.taskId});
+      const chatId = req.params.chatId;
+      const isSender = await isChatSender(uid, chatGroup._id, chatId);
+      if (!isSender) { throw new Error("Bạn không có quyền xoá!")}
+      await ChatGroup.findOneAndUpdate({taskId: req.params.taskId},{
+        $pull: {messages: {"_id": chatId}}
+      }).exec();
+    } else {
+      const chatGroup = await ChatGroup.findOne({groupId: req.params.groupId});
+      const chatId = req.params.chatId;
+      const isSender = await isChatSender(uid, chatGroup._id, chatId);
+      if (!isSender) { throw new Error("Bạn không có quyền xoá!")}
+      await ChatGroup.findOneAndUpdate({groupId: req.params.groupId},{
+        $pull: {messages: {"_id": chatId}}
+      }).exec();
+    }
     return res.status(200).send("Đã xoá thành công!");
   } catch (error) {
     next(error);
