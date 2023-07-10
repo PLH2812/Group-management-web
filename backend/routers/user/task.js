@@ -144,15 +144,17 @@ router.patch('/api/users/me/editTask/:taskId/fromTable/:tableId/', auth,  async 
         let notifications = []
         for (let index = 0; index < uidList.length; index++) {
           const uid = uidList[index];
-          const user = await User.findById(uid);
-          const notification = new Notification({
-            userId: user._id,
-            title: `Một task trong nhóm ${table.name} của bạn đã thay đổi`,
-            description: `Người dùng ${req.user.name} đã thay đổi task ${task.name} trong nhóm ${table.name} của bạn`,
-            taskId: task._id
-          })
-          notifications = notifications.concat(notification);
-          await notification.save();
+          if (uid != req.user._id){
+            const user = await User.findById(uid);
+            const notification = new Notification({
+              userId: user._id,
+              title: `Một task trong nhóm ${table.name} của bạn đã thay đổi`,
+              description: `Người dùng ${req.user.name} đã thay đổi task ${task.name} trong nhóm ${table.name} của bạn`,
+              taskId: task._id
+            })
+            notifications = notifications.concat(notification);
+            await notification.save();
+          }
         }
 
 
