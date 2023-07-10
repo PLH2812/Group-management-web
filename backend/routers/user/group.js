@@ -46,6 +46,7 @@ router.get('/api/users/me/groups', auth, async(req, res, next) => {
       table.groupId = group._id;
       await table.save();
       const chatGroup = new ChatGroup({
+        name: `Nhóm chat của ${group.name}`,
         groupId: group._id
       });
       await chatGroup.save();
