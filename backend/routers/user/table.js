@@ -150,7 +150,7 @@ router.post('/api/users/me/createTable/inGroup/:groupId', auth, async (req, res,
 
   router.delete('/api/users/me/deleteTable/:tableId', auth, tryCatch(async(req,res) => {
     const tableId = mongoose.Types.ObjectId(req.params['tableId'])
-    await Table.findOneAndDelete(tableId, function (err, docs) {
+    Table.findOneAndDelete(tableId, function (err, docs) {
       if (err){
           throw new Error(err);
       }
