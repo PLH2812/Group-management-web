@@ -15,6 +15,8 @@ app.use(cors({
 app.use(express.json());
 app.use(cookieParser());
 app.use(rootRouter);
+const appDir = dirname(require.main.filename)
+app.use('/images', express.static(appDir +  "/resources/uploads/"));
 
 
 
