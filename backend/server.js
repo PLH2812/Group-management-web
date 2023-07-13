@@ -2,6 +2,7 @@ const express = require("express");
 const cookieParser = require("cookie-parser");
 const rootRouter = require("./middleware/rootRouter");
 const cors = require("cors");
+const { dirname } = require('path');
 const port = process.env.PORT;
 require("./db/db");
 
