@@ -149,6 +149,9 @@ router.post('/api/users/me/createTable/inGroup/:groupId', auth, async (req, res,
   })
 
   router.delete('/api/users/me/deleteTable/:tableId', auth, tryCatch(async(req,res) => {
+    const myTables = await Table.getMyOwnTables(req.user._id);
+    const isOwner = myTables.find(t => t.id === req.params['tableId']);
+    if (!isOwner){ throw new Error('Bạn không phải chủ nhóm!') }
     await Table.findByIdAndDelete(req.params.tableId)
     return res.status(200).send("Đã xoá table thành công!");
   }))
