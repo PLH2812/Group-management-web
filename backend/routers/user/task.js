@@ -87,7 +87,7 @@ router.delete('/api/users/me/deleteTask/:taskId/fromTable/:tableId/', auth, asyn
         } else {
           const chatGroup = await ChatGroup.findOne({taskId: task._id})
           task = await Task.findByIdAndDelete(task._id)
-          chatGroup = await ChatGroup.findByIdAndDelete(chatGroup._id)
+          await ChatGroup.findByIdAndDelete(chatGroup._id)
           table.tasks = table.tasks.filter((task)=> { return task.taskId !== req.params['taskId']});
           await table.save();
           res.status(200).send({message: 'Xoá task thành công!'})
