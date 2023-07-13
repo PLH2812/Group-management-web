@@ -190,7 +190,7 @@ const router = express.Router();
     catch (error){
       if (error.code == "LIMIT_FILE_SIZE") {
         return res.status(500).send(
-          "File không được lớn hơn 2MB!"
+          "File không được lớn hơn 10MB!"
         );
       }
       next(error);
