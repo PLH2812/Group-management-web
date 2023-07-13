@@ -156,7 +156,7 @@ const router = express.Router();
         _id: req.user._id,
         email: req.user.email,
         name: req.user.name,
-        
+        avatarUrl: req.user.avatarUrl
       };
       res.send(data);
   }))
