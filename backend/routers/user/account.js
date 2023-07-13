@@ -123,7 +123,12 @@ const router = express.Router();
         message: 'Đăng nhập thành công',
         _id: user._id,
         email: user.email,
-        name: user.name})
+        name: user.name,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        phone: user.phone,
+        dateOfBirth: user.dateOfBirth,
+        avatarUrl: user.avatarUrl})
   }));
   
   router.get('/api/users/getUser/:userEmail', tryCatch (async(req,res,next) => {
@@ -138,6 +143,7 @@ const router = express.Router();
               _id: user._id,
               name: user.name,
               email: user.email,
+              avatarUrl: user.avatarUrl
             });
           });
           
@@ -149,7 +155,8 @@ const router = express.Router();
       const data = {
         _id: req.user._id,
         email: req.user.email,
-        name: req.user.name
+        name: req.user.name,
+        
       };
       res.send(data);
   }))
@@ -200,7 +207,7 @@ const router = express.Router();
         avatarUrl: req.body.avatarUrl
       }
       await User.findByIdAndUpdate(req.user._id, update);
-      res.status(200).send({ message: "Cập nhật thành cồng!"});
+      res.status(200).send({ message: "Cập nhật thành cồng!", update});
     } catch (error) {
       next(error);
     }
@@ -247,7 +254,12 @@ const router = express.Router();
           message: 'Đăng nhập thành công',
           _id: user._id,
           email: user.email,
-          name: user.name})
+          name: user.name,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          phone: user.phone,
+          dateOfBirth: user.dateOfBirth,
+          avatarUrl: user.avatarUrl})
     }
     else {throw new Error('Tài khoản này chưa được xác thực!');}
   }))
