@@ -91,14 +91,14 @@ router.post("/api/users/sendChat/:taskId/:groupId", auth, async (req, res, next)
 router.get("/api/users/getChat/:taskId/:groupId", auth, async (req, res, next) => {
   try {
     if (req.params.taskId != 1){
-      var chatGroup = await ChatGroup.findOne({taskId: req.params.taskId});
+      var chatGroup = await ChatGroup.findOne({taskId: req.params.taskId}).lean();
     } else {
-      var chatGroup = await ChatGroup.findOne({groupId: req.params.groupId});
+      var chatGroup = await ChatGroup.findOne({groupId: req.params.groupId}).lean();
     }
     if (!chatGroup) {throw new Error("Nhóm chat không tồn tại!")}
     let messages = chatGroup.messages;
     for (let index = 0; index < messages.length; index++) {
-      const user = await User.findById(messages[index].sender.senderId);
+      const user = await User.findById(messages[index].sender.senderId).lean();
       messages[index].sender.avatarUrl = user.avatarUrl
     }
     return res.status(200).send(messages);

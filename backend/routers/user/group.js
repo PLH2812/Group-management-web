@@ -190,15 +190,18 @@ router.get('/api/users/me/groups', auth, async(req, res, next) => {
 
   router.get('/api/users/me/getMembers/fromGroup/:groupId', auth, tryCatch(async(req,res) => {
     const groupId = mongoose.Types.ObjectId(req.params['groupId'])
-    const group = await Group.findOne(groupId);
+    let group = await Group.findOne(groupId).lean();
     if (!group) {throw new Error('Nhóm không tồn tại!')};
     for (let index = 0; index < group.members.length; index++) {
       let id = group.members[index].userId;
-      const user = await User.findById(id);
+      const user = await User.findById(id).lean();
       group.members[index].avatarUrl = user.avatarUrl;
     }
-    let owner = await User.findById(group.owner.userId)
-    group.owner.avatarUrl = owner.avatarUrl;
+    for (let index = 0; index < group.owner.length; index++) {
+      let ownerId = group.owner[index].userId;
+      const owner = await User.findById(ownerId).lean();
+      group.owner[index].avatarUrl = owner.avatarUrl;
+    }
     const result = {members: group.members, owner: group.owner};
     return res.status(200).send(result);
   }))
