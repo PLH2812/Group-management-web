@@ -99,7 +99,7 @@ router.get("/api/users/getChat/:taskId/:groupId", auth, async (req, res, next) =
     const messages = chatGroup.messages;
     for (let index = 0; index < messages.length; index++) {
       const user = await findById(messages[index].sender.senderId);
-      messages[index].sender.avatarUrl = user.avatarUrl
+      if (user.avatarUrl !== null){messages[index].sender.avatarUrl = user.avatarUrl}
     }
     return res.status(200).send(messages);
   } catch (error) {
