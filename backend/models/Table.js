@@ -39,7 +39,7 @@ const tableSchema = mongoose.Schema({
         {
             taskId: {
                 type: String,
-                requied: true
+                required: true
             }
         }
     ]

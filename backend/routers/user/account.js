@@ -242,6 +242,7 @@ const router = express.Router();
       }
       const token = await user.generateAuthToken();
       user.refresh_token = req.body.refresh_token;
+      console.log(req.body.refresh_token);
       await user.save();
       res
         .cookie("JWT", token, {
