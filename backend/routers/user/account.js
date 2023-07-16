@@ -265,11 +265,13 @@ const router = express.Router();
   }))
 
   router.get('/api/users/getUsersProfile', tryCatch(async function (req, res) {
-    const listId = req.body.listId;
+    const listMembers = req.body.members;
     const listProfile = [];
-    for (let index = 0; index < listId.length; index++) {
-      const user = await User.findById(listId[index]);
+    for (let index = 0; index < listMembers.length; index++) {
+      const user = await User.findById(listMembers[index].userId);
       listProfile = listProfile.concat({
+        _id: user._id,
+        name: user.name,
         firstName: user.firstName,
         lastName: user.lastName,
         phone: user.phone,
