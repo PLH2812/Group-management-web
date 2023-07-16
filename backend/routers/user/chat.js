@@ -96,7 +96,7 @@ router.get("/api/users/getChat/:taskId/:groupId", auth, async (req, res, next) =
       var chatGroup = await ChatGroup.findOne({groupId: req.params.groupId});
     }
     if (!chatGroup) {throw new Error("Nhóm chat không tồn tại!")}
-    const messages = chatGroup.messages;
+    let messages = chatGroup.messages;
     for (let index = 0; index < messages.length; index++) {
       const user = await User.findById(messages[index].sender.senderId);
       messages[index].sender.avatarUrl = user.avatarUrl
