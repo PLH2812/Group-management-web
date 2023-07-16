@@ -39,7 +39,8 @@ const userSchema = mongoose.Schema({
     type: String
   },
   avatarUrl:{
-    type: String
+    type: String,
+    default: "default.jpg"
   },
   phone: {
     type: String

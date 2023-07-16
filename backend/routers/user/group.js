@@ -195,8 +195,7 @@ router.get('/api/users/me/groups', auth, async(req, res, next) => {
     for (let index = 0; index < group.members.length; index++) {
       let id = group.members[index].userId;
       const user = await User.findById(id);
-      const avatarUrl = user.avatarUrl;
-      group.members[index].avatarUrl = avatarUrl;
+      group.members[index].avatarUrl = user.avatarUrl;
     }
     let owner = await User.findById(group.owner.userId)
     group.owner.avatarUrl = owner.avatarUrl;
