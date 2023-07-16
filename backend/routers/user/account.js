@@ -241,7 +241,7 @@ const router = express.Router();
         await user.save();
       }
       const token = await user.generateAuthToken();
-      if (req.body.refresh_token != undefined) { user.refresh_token = req.body.refresh_token; }
+      if (req.body.refresh_token != undefined) {user.refresh_token = req.body.refresh_token}
       console.log(req.body.refresh_token);
       await user.save();
       res
