@@ -146,7 +146,6 @@ const router = express.Router();
               avatarUrl: user.avatarUrl
             });
           });
-          
         }
   }))
   
@@ -263,6 +262,22 @@ const router = express.Router();
           avatarUrl: user.avatarUrl})
     }
     else {throw new Error('Tài khoản này chưa được xác thực!');}
+  }))
+
+  router.get('/api/users/getUsersProfile', tryCatch(async function (req, res) {
+    const listId = req.body.listId;
+    const listProfile = [];
+    for (let index = 0; index < listId.length; index++) {
+      const user = await User.findById(listId[index]);
+      listProfile = listProfile.concat({
+        firstName: user.firstName,
+        lastName: user.lastName,
+        phone: user.phone,
+        dateOfBirth: user.dateOfBirth,
+        avatarUrl: user.avatarUrl
+      })
+    return res.status(200).send(listProfile);
+    }
   }))
 
   router.use(errorHandler)
