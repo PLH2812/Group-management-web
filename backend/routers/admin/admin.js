@@ -14,7 +14,7 @@ const adminRole = process.env.ROLE_ADMIN;
 router.post("/api/admin/createUser", requireRole(adminRole), async (req, res) => {
     // Create a new user
     try {
-        const user = accountController.createUser(req.body.user);
+        const user = await accountController.createUser(req.body.user);
         res.status(200).send({message: "Tạo tài khoản thành công", data: user});
     } catch (error) {
         next(error);
@@ -25,7 +25,7 @@ router.post("/api/admin/updateUser/:_id", requireRole(adminRole), async (req, re
     // Update an existing user
     try {
         const uid = req.params._id;
-        const user = accountController.editUser(uid, req.body);
+        const user = await accountController.editUser(uid, req.body);
         res.status(200).send({message: "Sửa thành công!", data: user});
     } catch (error) {
         next(error);
@@ -35,7 +35,7 @@ router.post("/api/admin/updateUser/:_id", requireRole(adminRole), async (req, re
 router.post("/api/admin/deleteUser/:_id", requireRole(adminRole), async (req, res) => {
     try {
         const uid = req.params._id;
-        const user = accountController.deleteUser(uid)
+        const user = await accountController.deleteUser(uid)
         res.status(200).send({message:"Xoá thành công!", data: user});
     } catch (error) {
         next(error);
@@ -45,7 +45,7 @@ router.post("/api/admin/deleteUser/:_id", requireRole(adminRole), async (req, re
 router.get("/api/admin/getUser/:_id", requireRole(adminRole), async (req, res) => {
     try {
         const uid = req.params._id;
-        const user = accountController.getUser(uid);
+        const user = await accountController.getUser(uid);
         res.status(200).send(user);
     } catch (error) {
         next(error);
@@ -54,10 +54,10 @@ router.get("/api/admin/getUser/:_id", requireRole(adminRole), async (req, res) =
 
 router.get("/api/admin/getAllUsers", requireRole(adminRole), async (req, res) => {
     try {
-        const data = accountController.getAllUsers();
+        const data = await accountController.getAllUsers();
         res.status(201).send(data);
     } catch (error) {
-           next(error);
+        next(error);
     }
 })
 
