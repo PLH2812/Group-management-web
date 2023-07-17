@@ -51,7 +51,7 @@ io.on("connection", (socket) => {
       if (!members) return console.log("members not defined");
 
       members.forEach((user) => {
-        if (user.userId == newMessageReceived.senderId) return;
+        // if (user.userId == newMessageReceived.senderId) return;
 
         socket.in(user.userId).emit("message received", newMessageReceived);
       });
