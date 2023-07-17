@@ -109,7 +109,7 @@ router.get('/api/users/me/groups', auth, async(req, res, next) => {
         description: `Người dùng ${req.user.name} đã mời bạn vào nhóm ${group.name}, hãy kiểm tra email để xác nhận.`
       })
       await notification.save();
-      return res.status(200).send({message: "Gửi thành cồng!", notification});
+      return res.status(200).send({message: "Gửi thành công!", notification});
     } catch (error) {
       next(error);
     }
